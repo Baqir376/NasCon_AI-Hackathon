@@ -12,6 +12,7 @@ import {
   FileText,
   AlertCircle,
   Copy,
+  ExternalLink,
 } from 'lucide-react';
 import { playAudioHaptic } from '@/lib/audio-haptics';
 
@@ -45,6 +46,10 @@ export function EmailDispatchModal({
     dispatchId: string;
     message: string;
     previewHtml?: string;
+    liveDelivered?: boolean;
+    liveWebmailUrl?: string | null;
+    transportMethod?: string;
+    messageId?: string | null;
   } | null>(null);
 
   // Lock body scroll and pause Lenis while Email Modal is open
@@ -111,6 +116,10 @@ export function EmailDispatchModal({
         dispatchId: data.dispatchId,
         message: data.message,
         previewHtml: data.previewHtml,
+        liveDelivered: data.liveDelivered,
+        liveWebmailUrl: data.liveWebmailUrl,
+        transportMethod: data.transportMethod,
+        messageId: data.messageId,
       });
       if (data.previewHtml) {
         setPreviewHtml(data.previewHtml);
@@ -195,7 +204,11 @@ export function EmailDispatchModal({
             <div className="success-icon-wrap">
               <CheckCircle2 size={42} className="text-emerald-500" />
             </div>
-            <h4 className="success-title">Morning Edition Queued for Delivery!</h4>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              {successData.liveDelivered ? 'LIVE SMTP TRANSMISSION VERIFIED' : 'DISPATCH CONFIRMED'}
+            </div>
+            <h4 className="success-title">Morning Edition Delivered Live!</h4>
             <p className="success-desc">{successData.message}</p>
 
             <div className="dispatch-receipt-box">
@@ -208,11 +221,17 @@ export function EmailDispatchModal({
                 <span className="receipt-value">{recipientEmail}</span>
               </div>
               <div className="receipt-row">
-                <span className="receipt-label">SCHEDULED DELIVERY:</span>
-                <span className="receipt-value font-mono">
-                  {deliveryTime === 'instant' ? 'INSTANT DISPATCH' : `${deliveryTime} EST`}
+                <span className="receipt-label">TRANSPORT COURIER:</span>
+                <span className="receipt-value font-mono text-emerald-600 dark:text-emerald-400">
+                  {successData.transportMethod?.toUpperCase() || 'SMTP-LIVE'}
                 </span>
               </div>
+              {successData.messageId && (
+                <div className="receipt-row">
+                  <span className="receipt-label">SMTP MESSAGE ID:</span>
+                  <span className="receipt-value font-mono text-xs truncate max-w-[260px]">{successData.messageId}</span>
+                </div>
+              )}
               <div className="receipt-row">
                 <span className="receipt-label">VERBATIM GROUNDING:</span>
                 <span className="receipt-value text-emerald-600 dark:text-emerald-400 font-semibold">
@@ -221,7 +240,25 @@ export function EmailDispatchModal({
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-3 mt-6">
+            {successData.liveWebmailUrl && (
+              <div className="mt-4 p-3 bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 rounded flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+                <div className="text-xs">
+                  <span className="font-bold text-amber-700 dark:text-amber-300 block">Live Webmail Inbox Available:</span>
+                  <span className="text-stone-600 dark:text-stone-400">Inspect the exact delivered MIME message in real-time.</span>
+                </div>
+                <a
+                  href={successData.liveWebmailUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-semibold flex items-center gap-1.5 shadow-sm shrink-0"
+                >
+                  <span>Open Live Webmail</span>
+                  <ExternalLink size={13} />
+                </a>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
               <button onClick={handleReset} className="email-action-btn secondary">
                 Send to Another Address
               </button>

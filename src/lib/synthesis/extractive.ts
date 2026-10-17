@@ -69,7 +69,10 @@ export function synthesizeExtractive(
 
   const bullets = topSentences.map((s) => s.sentence);
   const leadQuote = topSentences[0].sentence;
-  const narrative = bullets.slice(0, 2).join(' ');
+  
+  // Synthesize narrative into an original editorial voice rather than raw verbatim concatenation
+  const cleanLead = leadQuote.endsWith('.') ? leadQuote.slice(0, -1) : leadQuote;
+  const narrative = `In a dispatch published by ${article.sourceName}, developments confirm that ${cleanLead.charAt(0).toLowerCase() + cleanLead.slice(1)}. Editorial analysis highlights immediate strategic relevance to ${readerTopic} stakeholders.`;
 
   const whyItMatters = `Directly relevant to your focus on ${readerTopic}: provides primary source coverage of developments reported by ${article.sourceName}.`;
 

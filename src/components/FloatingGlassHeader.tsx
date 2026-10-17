@@ -1,19 +1,21 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Command, Volume2, VolumeX, Mail } from 'lucide-react';
+import { Sparkles, Command, Volume2, VolumeX, Mail, Play } from 'lucide-react';
 import { audioHaptics } from '@/lib/audio-haptics';
 
 interface FloatingGlassHeaderProps {
   onOpenCommandPalette: () => void;
   onScrollToSection: (sectionId: string) => void;
   onOpenEmailModal?: () => void;
+  onOpenShowreel?: () => void;
 }
 
 export function FloatingGlassHeader({
   onOpenCommandPalette,
   onScrollToSection,
   onOpenEmailModal,
+  onOpenShowreel,
 }: FloatingGlassHeaderProps) {
   const [isMuted, setIsMuted] = useState(false);
 
@@ -58,8 +60,29 @@ export function FloatingGlassHeader({
           ))}
         </div>
 
-        {/* Action Controls: Sound Haptics + Email Courier + Command Palette Trigger */}
+        {/* Action Controls: Sound Haptics + Email Courier + Video Theater + 15s Showreel + Command Palette */}
         <div className="pill-actions-section">
+          <a
+            href="/video-theater.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pill-nav-btn nav-roll-btn hidden sm:flex text-amber-500 font-semibold"
+            title="Watch 3m31s Flagship Loom Walkthrough & Rubric Defense"
+          >
+            <Play size={11} className="inline mr-1 fill-current" />
+            <span>Walkthrough (3m31s)</span>
+          </a>
+
+          {onOpenShowreel && (
+            <button
+              onClick={onOpenShowreel}
+              className="pill-nav-btn nav-roll-btn hidden sm:flex text-red-600 dark:text-red-400 font-semibold"
+              title="Watch 15-Second Motion Design Showreel"
+            >
+              <span>15s Showreel</span>
+            </button>
+          )}
+
           {onOpenEmailModal && (
             <button
               onClick={onOpenEmailModal}

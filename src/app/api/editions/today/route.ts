@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   try {
     const { user, newCookieHeader } = await resolveSessionUser();
     const url = new URL(req.url);
-    const autoGenerate = url.searchParams.get('autoGenerate') === 'true';
+    const autoGenerate = url.searchParams.get('autoGenerate') !== 'false';
 
     // Query most recent edition for this user
     const latestRecord = await db.edition.findFirst({

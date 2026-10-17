@@ -24,6 +24,7 @@ import { UIElementFoundry } from '@/components/UIElementFoundry';
 import { CalligraphySignature } from '@/components/CalligraphySignature';
 import { BroadsheetReaderModal } from '@/components/BroadsheetReaderModal';
 import { EmailDispatchModal } from '@/components/EmailDispatchModal';
+import { ShowreelModal } from '@/components/ShowreelModal';
 import { CanonicalEdition, CanonicalStory } from '@/lib/synthesis/schema';
 import { Sparkles, Newspaper, AlertCircle } from 'lucide-react';
 
@@ -58,6 +59,7 @@ export default function NewspaperPage() {
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
   const [isCmdOpen, setIsCmdOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isShowreelOpen, setIsShowreelOpen] = useState(false);
 
   // Broadsheet Reading Room State
   const [readingStory, setReadingStory] = useState<CanonicalStory | null>(null);
@@ -305,6 +307,7 @@ export default function NewspaperPage() {
         onOpenCommandPalette={() => setIsCmdOpen(true)}
         onScrollToSection={handleScrollToSection}
         onOpenEmailModal={() => setIsEmailModalOpen(true)}
+        onOpenShowreel={() => setIsShowreelOpen(true)}
       />
 
       {/* Top Chrono-Atmosphere & Live CRT Telemetry Rail */}
@@ -443,6 +446,7 @@ export default function NewspaperPage() {
         onSelectTheme={handleSelectThemeDirect}
         onScrollToSection={handleScrollToSection}
         onOpenEmailModal={() => setIsEmailModalOpen(true)}
+        onOpenShowreel={() => setIsShowreelOpen(true)}
         onOpenReaderLead={() => {
           if (edition?.leadStory) {
             handleOpenReaderForStory(edition.leadStory);
@@ -496,6 +500,12 @@ export default function NewspaperPage() {
         editionId={edition?.id}
         editionNumber={edition?.editionNumber}
         defaultName={sessionUser?.name}
+      />
+
+      {/* 15-Second Motion Design Showreel Video Modal */}
+      <ShowreelModal
+        isOpen={isShowreelOpen}
+        onClose={() => setIsShowreelOpen(false)}
       />
 
       {/* Floating Magnetic Voice AI Concierge Orb & Broadcast Console */}

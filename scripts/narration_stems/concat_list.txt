@@ -1,0 +1,6 @@
+file 'D:/EnvisionHackathon/scripts/narration_stems/scene_01_intro.wav'
+file 'D:/EnvisionHackathon/scripts/narration_stems/scene_02_architecture.wav'
+file 'D:/EnvisionHackathon/scripts/narration_stems/scene_03_onboarding_theme.wav'
+file 'D:/EnvisionHackathon/scripts/narration_stems/scene_04_vitrine_bezier_blueprint.wav'
+file 'D:/EnvisionHackathon/scripts/narration_stems/scene_05_grounding_learning_reader.wav'
+file 'D:/EnvisionHackathon/scripts/narration_stems/scene_06_email_pdf_concierge_wrapup.wav'

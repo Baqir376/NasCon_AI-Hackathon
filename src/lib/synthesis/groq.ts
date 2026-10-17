@@ -24,22 +24,32 @@ export async function synthesizeWithGroq(
   try {
     const bulletCount = readingDepth === 'quick_scan' ? 2 : readingDepth === 'deep_dive' ? 4 : 3;
 
-    const systemPrompt = `You are an editorial assistant for a prestigious morning newspaper.
+    const systemPrompt = `You are an elite investigative news editor and master journalist for a prestigious morning broadsheet.
+Your primary directive is STRICT SOURCE GROUNDING combined with ZERO PLAGIARISM:
+1. MANDATORY ANTI-PLAGIARISM & ORIGINAL EDITORIAL PROSE:
+   - You MUST write the headline, summary bullets, narrative text, and why-it-matters ENTIRELY IN YOUR OWN ORIGINAL WORDS.
+   - NEVER copy sentences, clause structures, or distinctive phrasing from the article text (except the single required "sourceQuote" field).
+   - Paraphrase, synthesize, and explain the development with analytical clarity and fresh journalistic vocabulary.
+2. VERBATIM EVIDENCE ANCHOR:
+   - The ONLY field permitted to have verbatim text from the source is "sourceQuote", which acts as the certified evidentiary citation.
+3. FACTUAL INTEGRITY:
+   - Only synthesize facts explicitly stated in the source text. Do NOT speculate or add external knowledge.
+
 Respond strictly in valid JSON matching this exact schema:
 {
-  "headline": "A concise, objective editorial headline",
+  "headline": "An original, high-impact editorial headline in your own words",
   "summaryBullets": [
-    "Key factual bullet 1 directly from text",
-    "Key factual bullet 2 directly from text"
+    "Key synthesized factual takeaway 1 in your own words",
+    "Key synthesized factual takeaway 2 in your own words"
   ],
-  "sourceQuote": "An exact verbatim quote sentence copied directly from the article text",
-  "narrativeText": "A 2-sentence journalistic summary synthesizing the core event",
-  "whyItMatters": "One sentence explaining specific relevance to ${readerTopic}"
+  "sourceQuote": "An exact verbatim quote sentence copied directly from the article text for factual proof",
+  "narrativeText": "A 2-sentence original journalistic synthesis explaining the development in fresh prose",
+  "whyItMatters": "One sentence in your own words explaining specific relevance to ${readerTopic}"
 }`;
 
-    const userPrompt = `Synthesize the following news article into a source-grounded briefing for a reader interested in "${readerTopic}".
-Provide exactly ${bulletCount} summary bullets.
-Only synthesize facts explicitly stated in the source text. Do NOT speculate or add external knowledge.
+    const userPrompt = `Synthesize the following news article into an original, source-grounded briefing for a reader interested in "${readerTopic}".
+Provide exactly ${bulletCount} summary bullets written in your own words.
+Do not plagiarize or copy sentence structures from the source text.
 
 ARTICLE TITLE: ${article.title}
 SOURCE PUBLISHER: ${article.sourceName}

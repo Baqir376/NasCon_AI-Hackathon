@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Sparkles, Download, History, Sliders, Users, Sun, Moon, Palette, Compass, Activity, Volume2, ShieldCheck, X, Mail, BookOpen } from 'lucide-react';
+import { Search, Sparkles, Download, History, Sliders, Users, Sun, Moon, Palette, Compass, Activity, Volume2, ShieldCheck, X, Mail, BookOpen, Play } from 'lucide-react';
 import { audioHaptics } from '@/lib/audio-haptics';
 
 export interface CommandItem {
@@ -26,6 +26,7 @@ interface CommandPaletteProps {
   onScrollToSection: (sectionId: string) => void;
   onOpenEmailModal?: () => void;
   onOpenReaderLead?: () => void;
+  onOpenShowreel?: () => void;
 }
 
 export function CommandPalette({
@@ -40,12 +41,37 @@ export function CommandPalette({
   onScrollToSection,
   onOpenEmailModal,
   onOpenReaderLead,
+  onOpenShowreel,
 }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const commands: CommandItem[] = [
+    {
+      id: 'walkthrough-video-3m',
+      category: 'Dispatch' as const,
+      title: 'Watch 3m31s Flagship Loom Walkthrough & Defense',
+      subtitle: 'Complete voiceover tour & NaSCon\'26 Rubric scorecard breakdown',
+      hotkey: '⌘V',
+      icon: <Play size={14} className="text-amber-500 fill-current" />,
+      action: () => {
+        window.open('/video-theater.html', '_blank');
+        onClose();
+      },
+    },
+    ...(onOpenShowreel ? [{
+      id: 'showreel-15s',
+      category: 'Dispatch' as const,
+      title: 'Watch 15-Second Motion Design Showreel',
+      subtitle: '120 BPM procedural animation: Ink becomes type becomes architecture',
+      hotkey: '⌘S',
+      icon: <Play size={14} className="text-rose-500 fill-current" />,
+      action: () => {
+        onOpenShowreel();
+        onClose();
+      },
+    }] : []),
     {
       id: 'dispatch-email',
       category: 'Dispatch',

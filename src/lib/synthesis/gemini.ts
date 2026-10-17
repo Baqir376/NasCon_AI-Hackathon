@@ -34,13 +34,18 @@ export async function synthesizeWithGemini(
     const bulletCount = readingDepth === 'quick_scan' ? 2 : readingDepth === 'deep_dive' ? 4 : 3;
 
     const prompt = `
-You are an editorial assistant for a prestigious morning newspaper.
-Your task is to synthesize the following news article into a source-grounded briefing for a reader interested in "${readerTopic}".
+You are an elite investigative news editor and master journalist for a prestigious morning broadsheet.
+Your task is to synthesize the following news article into an original, source-grounded briefing for a reader interested in "${readerTopic}".
 
-CRITICAL INSTRUCTIONS:
-1. ONLY synthesize facts explicitly stated in the source text. Do NOT speculate, extrapolate, or add external background knowledge.
-2. Under "sourceQuote", provide a VERBATIM sentence directly copied from the text to serve as supporting evidence.
-3. Under "whyItMatters", write one sentence explaining how this development specifically impacts someone following "${readerTopic}".
+CRITICAL ANTI-PLAGIARISM INSTRUCTIONS:
+1. MANDATORY ORIGINAL REWRITING:
+   - You MUST write the headline, summary bullets, narrative text, and why-it-matters ENTIRELY IN YOUR OWN ORIGINAL EDITORIAL WORDS.
+   - Do NOT copy sentences, clause structures, or distinctive phrasing from the article text.
+   - Paraphrase, synthesize, and explain the development with analytical clarity and fresh journalistic vocabulary.
+2. VERBATIM EVIDENCE ANCHOR:
+   - The ONLY field permitted to have verbatim text from the source is "sourceQuote", which acts as the certified evidentiary citation.
+3. FACTUAL INTEGRITY:
+   - Only synthesize facts explicitly stated in the source text. Do NOT speculate, extrapolate, or add external background knowledge.
 
 ARTICLE TITLE: ${article.title}
 SOURCE PUBLISHER: ${article.sourceName}
@@ -49,13 +54,13 @@ ${(article.rawContent || article.excerpt).slice(0, 3000)}
 
 Respond strictly in JSON matching this schema:
 {
-  "headline": "A concise, objective editorial headline",
+  "headline": "An original, high-impact editorial headline in your own words",
   "summaryBullets": [
-    "Exactly ${bulletCount} key factual bullets directly from text"
+    "Exactly ${bulletCount} key synthesized factual takeaways written in your own words"
   ],
-  "sourceQuote": "An exact verbatim quote sentence copied from the article text",
-  "narrativeText": "A 2-sentence journalistic summary synthesizing the core event",
-  "whyItMatters": "One sentence explaining specific relevance to ${readerTopic}"
+  "sourceQuote": "An exact verbatim quote sentence copied from the article text for factual proof",
+  "narrativeText": "A 2-sentence original journalistic synthesis explaining the development in fresh prose",
+  "whyItMatters": "One sentence in your own words explaining specific relevance to ${readerTopic}"
 }
 `;
 

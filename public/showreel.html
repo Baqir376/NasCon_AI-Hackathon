@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Morning Paper · 15s Motion Showreel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: #08090b;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    #canvas {
+      display: block;
+      width: 1920px;
+      height: 1080px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="1920" height="1080"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // PALETTE: Max 3 colors plus black & white
+    const BG_DARK = '#08090b';      // Black
+    const COLOR_WHITE = '#f7f5f0';  // White
+    const COLOR_GOLD = '#d4af37';   // Accent 1: Sovereign Gold
+    const COLOR_CRIMSON = '#e63946';// Accent 2: Editorial Crimson
+    const COLOR_SLATE = '#8d99ae';  // Accent 3: Slate Titanium
+
+    // EASING FUNCTIONS (Functions of time, zero bouncy easing, pure exponential & spring)
+    function clamp(val, min, max) {
+      return Math.max(min, Math.min(max, val));
+    }
+
+    function easeInOutExpo(x) {
+      return x === 0 ? 0 : x === 1 ? 1 : x < 0.5 ? Math.pow(2, 20 * x - 10) / 2 : (2 - Math.pow(2, -20 * x + 10)) / 2;
+    }
+
+    function easeOutExpo(x) {
+      return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+    }
+
+    function easeInExpo(x) {
+      return x === 0 ? 0 : Math.pow(2, 10 * x - 10);
+    }
+
+    function easeOutCubic(x) {
+      return 1 - Math.pow(1 - x, 3);
+    }
+
+    function easeInOutCubic(x) {
+      return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+    }
+
+    // Normalized progress within time window [start, end]
+    function progress(t, start, end) {
+      if (t <= start) return 0;
+      if (t >= end) return 1;
+      return (t - start) / (end - start);
+    }
+
+    // DIRECTIONAL MOTION BLUR HELPER (Follows velocity vector without banned blur glows)
+    function drawMotionStreak(ctx, renderFn, vx, vy, steps = 3) {
+      if (Math.abs(vx) < 1 && Math.abs(vy) < 1) {
+        renderFn(0, 0, 1);
+        return;
+      }
+      for (let i = 0; i < steps; i++) {
+        const factor = (i / (steps - 1)) - 0.5;
+        const alpha = (1 - Math.abs(factor) * 0.7) / steps;
+        ctx.save();
+        renderFn(vx * factor * 0.4, vy * factor * 0.4, alpha);
+        ctx.restore();
+      }
+    }
+
+    // 15 SECONDS @ 120 BPM = 30 BEATS (0.5s per beat, 2.0s per bar)
+    // window.seek(t) is called for every frame
+    window.seek = function(t) {
+      // Loop wrapping
+      t = t % 15.0;
+      if (t < 0) t += 15.0;
+
+      // Clear frame
+      ctx.fillStyle = BG_DARK;
+      ctx.fillRect(0, 0, 1920, 1080);
+
+      // Subtle editorial drafting background grid (deterministic)
+      ctx.save();
+      ctx.strokeStyle = 'rgba(141, 153, 174, 0.08)';
+      ctx.lineWidth = 1;
+      for (let x = 80; x < 1920; x += 80) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 1080);
+        ctx.stroke();
+      }
+      for (let y = 60; y < 1080; y += 60) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(1920, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Telemetry HUD watermarks (Timecode and BPM)
+      ctx.save();
+      ctx.fillStyle = COLOR_SLATE;
+      ctx.font = '500 13px "Inter", monospace';
+      ctx.fillText(`ATELIER CHRONO · ${t.toFixed(3)}s / 15.000s · 120 BPM`, 80, 50);
+      ctx.fillText('THE MORNING PAPER · ARCHITECTURAL REEL · 60 FPS', 1480, 50);
+      ctx.restore();
+
+      // =========================================================================
+      // SCENE 1: HOOK (Beats 1-4, t: 0.0s - 2.0s)
+      // "Ink droplet impacts baseline, draws out ruling lines and crosshairs"
+      // =========================================================================
+      if (t < 2.0) {
+        const p1 = progress(t, 0.0, 0.5); // Beat 1: Ink drop impacts center
+        const p2 = progress(t, 0.5, 1.0); // Beat 2: Expands into architectural ruling rule
+        const p3 = progress(t, 1.0, 1.5); // Beat 3: Cleaves into 4 crosshairs
+        const p4 = progress(t, 1.5, 2.0); // Beat 4: Snaps into frame bounding box
+
+        const cx = 960;
+        const cy = 540;
+
+        if (t < 0.5) {
+          const e = easeOutExpo(p1);
+          const r = 8 + e * 42;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fillStyle = COLOR_CRIMSON;
+          ctx.fill();
+
+          // Droplet ring shockwave
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * 1.6, 0, Math.PI * 2);
+          ctx.strokeStyle = COLOR_WHITE;
+          ctx.lineWidth = 2 * (1 - e);
+          ctx.stroke();
+        } else if (t < 1.0) {
+          const e = easeInOutExpo(p2);
+          const width = 50 + e * 720;
+          const height = 50 * (1 - e * 0.94);
+          ctx.fillStyle = COLOR_WHITE;
+          ctx.fillRect(cx - width / 2, cy - height / 2, width, height);
+
+          // Center crimson datum
+          ctx.fillStyle = COLOR_CRIMSON;
+          ctx.fillRect(cx - 2, cy - 24, 4, 48);
+        } else if (t < 1.5) {
+          const e = easeInOutCubic(p3);
+          const spread = 120 + e * 360;
+          ctx.strokeStyle = COLOR_WHITE;
+          ctx.lineWidth = 2;
+
+          // 4 Crosshairs moving outward
+          [-1, 1].forEach(sx => {
+            [-1, 1].forEach(sy => {
+              const px = cx + sx * spread;
+              const py = cy + sy * (spread * 0.56);
+              ctx.beginPath();
+              ctx.moveTo(px - 20, py); ctx.lineTo(px + 20, py);
+              ctx.moveTo(px, py - 20); ctx.lineTo(px, py + 20);
+              ctx.stroke();
+
+              ctx.fillStyle = COLOR_GOLD;
+              ctx.fillRect(px - 3, py - 3, 6, 6);
+            });
+          });
+
+          // Connecting coordinate box
+          ctx.strokeStyle = COLOR_SLATE;
+          ctx.strokeRect(cx - spread, cy - spread * 0.56, spread * 2, spread * 1.12);
+        } else {
+          const e = easeInOutExpo(p4);
+          const w = 480 + e * 400;
+          const h = 270 + e * 180;
+          ctx.strokeStyle = COLOR_WHITE;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(cx - w / 2, cy - h / 2, w, h);
+
+          // Diagonal drafting alignment lines
+          ctx.beginPath();
+          ctx.moveTo(cx - w / 2, cy - h / 2); ctx.lineTo(cx + w / 2, cy + h / 2);
+          ctx.moveTo(cx + w / 2, cy - h / 2); ctx.lineTo(cx - w / 2, cy + h / 2);
+          ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+          ctx.stroke();
+        }
+      }
+
+      // =========================================================================
+      // SCENE 2: KINETIC TYPE (Beats 5-8, t: 2.0s - 4.0s)
+      // "Bounding box slices open, revealing monolithic typography with velocity shear"
+      // =========================================================================
+      else if (t >= 2.0 && t < 4.0) {
+        const p5 = progress(t, 2.0, 2.5); // Beat 5: Slices and unmasks "AUTONOMOUS"
+        const p6 = progress(t, 2.5, 3.0); // Beat 6: Shears to 14° and tracks apart
+        const p7 = progress(t, 3.0, 3.5); // Beat 7: Counter-displacement into "INTELLIGENCE"
+        const p8 = progress(t, 3.5, 4.0); // Beat 8: Letterforms compress to vertical drafting stems
+
+        const cx = 960;
+        const cy = 540;
+
+        if (t < 2.5) {
+          const e = easeOutExpo(p5);
+          const maskW = 880 * e;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(cx - maskW / 2, cy - 120, maskW, 240);
+          ctx.clip();
+
+          ctx.fillStyle = COLOR_WHITE;
+          ctx.font = '900 110px "Inter", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.letterSpacing = `${(1 - e) * 40}px`;
+          ctx.fillText('AUTONOMOUS', cx, cy);
+
+          // Architectural rule underneath
+          ctx.fillStyle = COLOR_CRIMSON;
+          ctx.fillRect(cx - maskW / 2, cy + 90, maskW, 4);
+          ctx.restore();
+        } else if (t < 3.0) {
+          const e = easeInOutCubic(p6);
+          const shear = (1 - e) * 0.28;
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.transform(1, 0, -shear, 1, 0, 0);
+
+          ctx.fillStyle = COLOR_WHITE;
+          ctx.font = '900 110px "Inter", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('AUTONOMOUS', 0, 0);
+
+          // Metric brackets
+          ctx.strokeStyle = COLOR_GOLD;
+          ctx.lineWidth = 3;
+          ctx.strokeRect(-500 - e * 80, -80, 40, 160);
+          ctx.strokeRect(460 + e * 80, -80, 40, 160);
+          ctx.restore();
+        } else if (t < 3.5) {
+          const e = easeInOutExpo(p7);
+          const yOffset1 = -e * 160;
+          const yOffset2 = (1 - e) * 160;
+
+          // Outgoing "AUTONOMOUS" sliding up
+          ctx.save();
+          ctx.fillStyle = `rgba(247, 245, 240, ${1 - e})`;
+          ctx.font = '900 100px "Inter", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('AUTONOMOUS', cx, cy + yOffset1);
+          ctx.restore();
+
+          // Incoming "INTELLIGENCE" sliding into place
+          ctx.save();
+          ctx.fillStyle = COLOR_GOLD;
+          ctx.font = '900 110px "Inter", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('INTELLIGENCE', cx, cy + yOffset2);
+          ctx.restore();
+
+          // Horizontal knife slice across the split
+          ctx.fillStyle = COLOR_CRIMSON;
+          ctx.fillRect(80, cy, 1760, 2);
+        } else {
+          const e = easeInOutExpo(p8);
+          // Letters collapse into 12 vertical golden stems
+          const numStems = 12;
+          const spacing = 100;
+          const height = 220 * (1 - e * 0.3);
+
+          for (let i = 0; i < numStems; i++) {
+            const x = (cx - (numStems - 1) * spacing / 2) + i * spacing;
+            ctx.fillStyle = i % 2 === 0 ? COLOR_WHITE : COLOR_GOLD;
+            const w = 24 * (1 - e * 0.85);
+            ctx.fillRect(x - w / 2, cy - height / 2, w, height);
+          }
+        }
+      }
+
+      // =========================================================================
+      // SCENE 3: SHAPE MORPHING (Beats 9-12, t: 4.0s - 6.0s)
+      // "Stems fold outward into Circle -> Square/Diamond -> Golden Ratio Spiral -> Isometric Grid"
+      // =========================================================================
+      else if (t >= 4.0 && t < 6.0) {
+        const p9 = progress(t, 4.0, 4.5);   // Beat 9: Circle with drafting radius
+        const p10 = progress(t, 4.5, 5.0);  // Beat 10: Square rotating 45 deg to diamond
+        const p11 = progress(t, 5.0, 5.5);  // Beat 11: Golden ratio spiral geometry
+        const p12 = progress(t, 5.5, 6.0);  // Beat 12: Morph into 2D isometric cube footprint
+
+        const cx = 960;
+        const cy = 540;
+
+        if (t < 4.5) {
+          const e = easeOutExpo(p9);
+          const r = 240 * e;
+          ctx.strokeStyle = COLOR_WHITE;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Radial angle spokes
+          for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+            ctx.strokeStyle = COLOR_SLATE;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+
+          // Crimson center pivot
+          ctx.fillStyle = COLOR_CRIMSON;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (t < 5.0) {
+          const e = easeInOutCubic(p10);
+          const size = 380;
+          const angle = e * Math.PI * 0.25; // 0 to 45 deg
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(angle);
+          ctx.strokeStyle = COLOR_GOLD;
+          ctx.lineWidth = 3;
+          ctx.strokeRect(-size / 2, -size / 2, size, size);
+
+          // Internal nested concentric square
+          ctx.strokeStyle = COLOR_WHITE;
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(-size / 4, -size / 4, size / 2, size / 2);
+          ctx.restore();
+        } else if (t < 5.5) {
+          const e = easeInOutExpo(p11);
+          // Golden ratio rectangles
+          let boxW = 500;
+          let boxH = 309; // 1.618 ratio
+          ctx.strokeStyle = COLOR_WHITE;
+          ctx.lineWidth = 2;
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(e * Math.PI * 0.5);
+
+          ctx.strokeRect(-boxW / 2, -boxH / 2, boxW, boxH);
+          ctx.strokeStyle = COLOR_CRIMSON;
+          ctx.beginPath();
+          ctx.arc(-boxW / 2 + boxH, -boxH / 2 + boxH, boxH, Math.PI, Math.PI * 1.5);
+          ctx.stroke();
+
+          // Drafting notation
+          ctx.fillStyle = COLOR_SLATE;
+          ctx.font = '600 14px "Inter", monospace';
+          ctx.fillText(`Φ = 1.6180339 · HARMONIC PROPORTION`, -boxW / 2, boxH / 2 + 30);
+          ctx.restore();
+        } else {
+          const e = easeInOutExpo(p12);
+          // Isometric hexagonal footprint preparing for 3D extrusion
+          ctx.save();
+          ctx.translate(cx, cy);
+          const size = 220;
+          ctx.strokeStyle = COLOR_WHITE;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          for (let i = 0; i < 6; i++) {
+            const angle = (i * Math.PI / 3) + (Math.PI / 6);
+            const x = Math.cos(angle) * size;
+            const y = Math.sin(angle) * (size * 0.7);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          ctx.stroke();
+
+          // Internal 3-axis isometric lines
+          [0, 2, 4].forEach(i => {
+            const angle = (i * Math.PI / 3) + (Math.PI / 6);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(angle) * size, Math.sin(angle) * (size * 0.7));
+            ctx.strokeStyle = COLOR_GOLD;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          });
+          ctx.restore();
+        }
+      }
+
+      // =========================================================================
+      // SCENE 4: 2D-TO-3D MOMENT (Beats 13-16, t: 6.0s - 8.0s)
+      // "Isometric footprint extrudes into 3D architectural monolith with specular shading"
+      // =========================================================================
+      else if (t >= 6.0 && t < 8.0) {
+        const p13 = progress(t, 6.0, 6.5); // Beat 13: Vertical extrusion upwards
+        const p14 = progress(t, 6.5, 7.0); // Beat 14: 3D rotation revealing tiered pavilions
+        const p15 = progress(t, 7.0, 7.5); // Beat 15: Directional specular lighting across facets
+        const p16 = progress(t, 7.5, 8.0); // Beat 16: Aligns into architectural elevation grid
+
+        const cx = 960;
+        const cy = 540;
+
+        const extrudeH = 320 * easeOutExpo(progress(t, 6.0, 7.2));
+        const rot = (t - 6.0) * 0.35; // Gentle mathematical rotation
+
+        ctx.save();
+        ctx.translate(cx, cy + 60);
+
+        // Draw 3D isometric faceted monolith with mathematical projection
+        function project(x, y, z) {
+          const cosR = Math.cos(rot);
+          const sinR = Math.sin(rot);
+          const rx = x * cosR - z * sinR;
+          const rz = x * sinR + z * cosR;
+          const isoX = rx;
+          const isoY = (rx * 0.35) - y + (rz * 0.35);
+          return { x: isoX, y: isoY };
+        }
+
+        const W = 260;
+        const D = 260;
+        const H = extrudeH;
+
+        const pTopLeft = project(-W/2, H, -D/2);
+        const pTopRight = project(W/2, H, -D/2);
+        const pTopFront = project(W/2, H, D/2);
+        const pTopRear = project(-W/2, H, D/2);
+
+        const pBotLeft = project(-W/2, 0, -D/2);
+        const pBotRight = project(W/2, 0, -D/2);
+        const pBotFront = project(W/2, 0, D/2);
+        const pBotRear = project(-W/2, 0, D/2);
+
+        // Left facet
+        ctx.beginPath();
+        ctx.moveTo(pTopRear.x, pTopRear.y);
+        ctx.lineTo(pTopFront.x, pTopFront.y);
+        ctx.lineTo(pBotFront.x, pBotFront.y);
+        ctx.lineTo(pBotRear.x, pBotRear.y);
+        ctx.closePath();
+        ctx.fillStyle = '#161922';
+        ctx.fill();
+        ctx.strokeStyle = COLOR_SLATE;
+        ctx.stroke();
+
+        // Right facet
+        ctx.beginPath();
+        ctx.moveTo(pTopFront.x, pTopFront.y);
+        ctx.lineTo(pTopRight.x, pTopRight.y);
+        ctx.lineTo(pBotRight.x, pBotRight.y);
+        ctx.lineTo(pBotFront.x, pBotFront.y);
+        ctx.closePath();
+        ctx.fillStyle = '#222836';
+        ctx.fill();
+        ctx.strokeStyle = COLOR_SLATE;
+        ctx.stroke();
+
+        // Top Roof facet (Specular highlight)
+        ctx.beginPath();
+        ctx.moveTo(pTopRear.x, pTopRear.y);
+        ctx.lineTo(pTopFront.x, pTopFront.y);
+        ctx.lineTo(pTopRight.x, pTopRight.y);
+        ctx.lineTo(pTopLeft.x, pTopLeft.y);
+        ctx.closePath();
+        ctx.fillStyle = COLOR_WHITE;
+        ctx.fill();
+        ctx.strokeStyle = COLOR_GOLD;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Architectural wireframe mullions & floor plates
+        for (let f = 1; f <= 5; f++) {
+          const fh = (H / 6) * f;
+          const p1 = project(W/2, fh, D/2);
+          const p2 = project(W/2, fh, -D/2);
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = 'rgba(212, 175, 55, 0.7)';
+          ctx.stroke();
+        }
+
+        ctx.restore();
+
+        // Elevation dimension rulers
+        ctx.save();
+        ctx.fillStyle = COLOR_GOLD;
+        ctx.font = '600 13px "Inter", monospace';
+        ctx.fillText(`+${Math.round(extrudeH)}mm STRUCTURAL APEX`, cx + 320, cy - 80);
+        ctx.fillRect(cx + 280, cy - 85, 30, 2);
+        ctx.restore();
+      }
+
+      // =========================================================================
+      // SCENE 5: DATA / UI TELEMETRY (Beats 17-20, t: 8.0s - 10.0s)
+      // "3D pavilion unrolls into high-density editorial data telemetry & live Bézier spline"
+      // =========================================================================
+      else if (t >= 8.0 && t < 10.0) {
+        const p17 = progress(t, 8.0, 8.5); // Beat 17: Telemetry cards expand
+        const p18 = progress(t, 8.5, 9.0); // Beat 18: Live Bézier waveform pulse
+        const p19 = progress(t, 9.0, 9.5); // Beat 19: High-density data grid & wire tickers
+        const p20 = progress(t, 9.5, 10.0);// Beat 20: Accelerating towards climax
+
+        const cx = 960;
+        const cy = 540;
+
+        // Header telemetry bar
+        ctx.fillStyle = COLOR_WHITE;
+        ctx.font = '800 28px "Inter", sans-serif';
+        ctx.fillText('LIVE NEWSRUN TELEMETRY', 140, 240);
+
+        ctx.fillStyle = COLOR_GOLD;
+        ctx.font = '600 14px "Inter", monospace';
+        ctx.fillText('STATUS: 100% VERIFIED · 12 PRIMARY WIRES ACTIVE', 140, 270);
+
+        // 3 Structured Telemetry Cards
+        const cardW = 480;
+        const cardH = 340;
+        const cardY = 320;
+
+        // Card 1: Live Ingestion Throughput
+        ctx.strokeStyle = COLOR_SLATE;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(140, cardY, cardW, cardH);
+        ctx.fillStyle = COLOR_WHITE;
+        ctx.font = '700 20px "Inter"';
+        ctx.fillText('WIRE INGESTION RATE', 170, cardY + 50);
+        ctx.fillStyle = COLOR_GOLD;
+        ctx.font = '900 64px "Inter", monospace';
+        const numArticles = Math.round(1840 + (t - 8.0) * 420);
+        ctx.fillText(`${numArticles}`, 170, cardY + 140);
+        ctx.fillStyle = COLOR_SLATE;
+        ctx.font = '500 14px "Inter"';
+        ctx.fillText('ARTICLES ANALYZED PER SEC', 170, cardY + 180);
+
+        // Card 2: Dynamic Live Bézier Spline Waveform
+        ctx.strokeRect(660, cardY, cardW, cardH);
+        ctx.fillStyle = COLOR_WHITE;
+        ctx.font = '700 20px "Inter"';
+        ctx.fillText('LATENCY JITTER SPECTRUM', 690, cardY + 50);
+
+        // Draw living Bézier spline curve
+        ctx.beginPath();
+        ctx.moveTo(690, cardY + 220);
+        for (let x = 0; x <= 400; x += 40) {
+          const sampleT = (t - 8.0) * 8 + (x * 0.05);
+          const yWave = Math.sin(sampleT) * 45 + Math.cos(sampleT * 1.7) * 25;
+          ctx.lineTo(690 + x, cardY + 200 - yWave);
+        }
+        ctx.strokeStyle = COLOR_CRIMSON;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Coordinate dots on spline
+        for (let x = 0; x <= 400; x += 80) {
+          const sampleT = (t - 8.0) * 8 + (x * 0.05);
+          const yWave = Math.sin(sampleT) * 45 + Math.cos(sampleT * 1.7) * 25;
+          ctx.fillStyle = COLOR_WHITE;
+          ctx.fillRect(690 + x - 3, cardY + 200 - yWave - 3, 6, 6);
+        }
+
+        // Card 3: Neural Model Hallucination Index
+        ctx.strokeRect(1180, cardY, cardW, cardH);
+        ctx.fillStyle = COLOR_WHITE;
+        ctx.font = '700 20px "Inter"';
+        ctx.fillText('FACT GROUNDING RATE', 1210, cardY + 50);
+        ctx.fillStyle = COLOR_WHITE;
+        ctx.font = '900 64px "Inter", monospace';
+        ctx.fillText('99.98%', 1210, cardY + 140);
+        ctx.fillStyle = COLOR_GOLD;
+        ctx.font = '600 14px "Inter"';
+        ctx.fillText('PRIMARY SOURCE ZERO-SHOT CONSENSUS', 1210, cardY + 180);
+
+        // Riser sweep bar across bottom
+        const riserW = 1640 * progress(t, 8.5, 10.0);
+        ctx.fillStyle = COLOR_CRIMSON;
+        ctx.fillRect(140, 720, riserW, 4);
+      }
+
+      // =========================================================================
+      // SCENE 6: THE STRONGEST CLIMACTIC MOMENT (Beats 21-24, t: 10.0s - 12.0s)
+      // "Data nodes fuse into a massive rotating multi-plane vitrine with cubic tension splines"
+      // =========================================================================
+      else if (t >= 10.0 && t < 12.0) {
+        const p21 = progress(t, 10.0, 10.5); // Beat 21: Explosive structural convergence
+        const p22 = progress(t, 10.5, 11.0); // Beat 22: Crimson tension ribbons
+        const p23 = progress(t, 11.0, 11.5); // Beat 23: Maximum spatial expansion
+        const p24 = progress(t, 11.5, 12.0); // Beat 24: Snap into monolithic focus
+
+        const cx = 960;
+        const cy = 540;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        const climacticRot = (t - 10.0) * 1.2;
+        ctx.rotate(climacticRot);
+
+        // Nested rotating architectural vitrine planes
+        const numPlanes = 5;
+        for (let i = 0; i < numPlanes; i++) {
+          const scale = 1.0 - (i * 0.16);
+          const w = 840 * scale;
+          const h = 480 * scale;
+          const subRot = (i % 2 === 0 ? 1 : -1) * (t - 10.0) * 0.4;
+
+          ctx.save();
+          ctx.rotate(subRot);
+
+          // Alternating color frames
+          if (i === 0) {
+            ctx.strokeStyle = COLOR_WHITE;
+            ctx.lineWidth = 4;
+          } else if (i === 1) {
+            ctx.strokeStyle = COLOR_GOLD;
+            ctx.lineWidth = 2.5;
+          } else if (i === 2) {
+            ctx.strokeStyle = COLOR_CRIMSON;
+            ctx.lineWidth = 3;
+          } else {
+            ctx.strokeStyle = COLOR_SLATE;
+            ctx.lineWidth = 1.5;
+          }
+
+          ctx.strokeRect(-w / 2, -h / 2, w, h);
+
+          // Corner registration markings
+          const markSize = 24;
+          ctx.strokeRect(-w / 2, -h / 2, markSize, markSize);
+          ctx.strokeRect(w / 2 - markSize, -h / 2, markSize, markSize);
+          ctx.strokeRect(-w / 2, h / 2 - markSize, markSize, markSize);
+          ctx.strokeRect(w / 2 - markSize, h / 2 - markSize, markSize, markSize);
+
+          ctx.restore();
+        }
+
+        // High tension dynamic radial beams
+        const beams = 16;
+        for (let b = 0; b < beams; b++) {
+          const ang = (b * Math.PI * 2) / beams + climacticRot * 0.5;
+          const len = 700 + Math.sin(t * 12 + b) * 80;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(Math.cos(ang) * len, Math.sin(ang) * len);
+          ctx.strokeStyle = b % 4 === 0 ? COLOR_GOLD : 'rgba(247, 245, 240, 0.2)';
+          ctx.lineWidth = b % 4 === 0 ? 2 : 1;
+          ctx.stroke();
+        }
+
+        // Center crystalline focal diamond
+        ctx.fillStyle = COLOR_WHITE;
+        ctx.fillRect(-28, -28, 56, 56);
+        ctx.fillStyle = COLOR_CRIMSON;
+        ctx.fillRect(-14, -14, 28, 28);
+
+        ctx.restore();
+      }
+
+      // =========================================================================
+      // SCENE 7: END TITLE & SEAMLESS LOOP (Beats 25-30, t: 12.0s - 15.0s)
+      // "Snaps into THE MORNING PAPER end title, then condenses back to the initial ink droplet"
+      // =========================================================================
+      else {
+        const p25 = progress(t, 12.0, 12.5); // Beat 25: Snap to Monolithic Title
+        const p26 = progress(t, 12.5, 13.0); // Beat 26: Sub-title locks in
+        const p27 = progress(t, 13.0, 13.5); // Beat 27: Gold monogram badge reveals
+        const p28 = progress(t, 13.5, 14.0); // Beat 28: Outer framing boundary tracks inward
+        const p29 = progress(t, 14.0, 14.5); // Beat 29: Type converges rapidly to center point
+        const p30 = progress(t, 14.5, 15.0); // Beat 30: Final frame returns to exact singular ink droplet (matching t=0)
+
+        const cx = 960;
+        const cy = 540;
+
+        if (t < 14.0) {
+          // Monolithic End Title Reveal
+          const e = easeOutExpo(progress(t, 12.0, 12.8));
+
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Main Title: "THE MORNING PAPER"
+          ctx.fillStyle = COLOR_WHITE;
+          ctx.font = '900 110px "Inter", sans-serif';
+          ctx.letterSpacing = '6px';
+          ctx.fillText('THE MORNING PAPER', cx, cy - 40);
+
+          // Gold Monogram Seal above
+          ctx.strokeStyle = COLOR_GOLD;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(cx - 36, cy - 160, 72, 72);
+          ctx.fillStyle = COLOR_GOLD;
+          ctx.font = '800 28px "Inter", serif';
+          ctx.fillText('MP', cx, cy - 124);
+
+          // Subtitle
+          ctx.fillStyle = COLOR_SLATE;
+          ctx.font = '600 18px "Inter", monospace';
+          ctx.letterSpacing = '8px';
+          ctx.fillText('AUTONOMOUS EDITORIAL ATELIER · 2026', cx, cy + 60);
+
+          // Architectural Framing Line
+          const lineW = 920 * e;
+          ctx.fillStyle = COLOR_CRIMSON;
+          ctx.fillRect(cx - lineW / 2, cy + 110, lineW, 3);
+          ctx.restore();
+        } else if (t < 14.5) {
+          // Typography collapsing inward
+          const e = easeInOutExpo(p29);
+          const scale = 1 - e * 0.9;
+          const alpha = 1 - e;
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.scale(scale, scale);
+          ctx.fillStyle = `rgba(247, 245, 240, ${alpha})`;
+          ctx.font = '900 110px "Inter", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('THE MORNING PAPER', 0, 0);
+          ctx.restore();
+        } else {
+          // Final beat (14.5s to 15.0s):
+          // Condenses into the EXACT ink droplet at (cx, cy) with radius 8 at t=15.0s,
+          // matching frame 0.0s for a 100% SEAMLESS LOOP!
+          const e = easeInOutExpo(p30);
+          const r = 40 * (1 - e) + 8 * e; // Ends at radius 8, which is exact start of t=0!
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fillStyle = COLOR_CRIMSON;
+          ctx.fill();
+        }
+      }
+    };
+
+    // Initialize at frame 0
+    window.seek(0);
+
+    // High-precision real-time playback loop for browser viewing
+    let isPlaying = true;
+    let animStartTime = performance.now();
+    let pausedTimeOffset = 0;
+
+    function frameLoop(now) {
+      if (isPlaying && !window.__MANUAL_SEEK_ONLY__) {
+        const elapsed = (now - animStartTime) / 1000;
+        window.seek(elapsed);
+      }
+      requestAnimationFrame(frameLoop);
+    }
+    requestAnimationFrame(frameLoop);
+
+    // Keyboard & Click controls
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+          animStartTime = performance.now() - (pausedTimeOffset * 1000);
+        }
+      } else if (e.key === 'r' || e.key === 'R') {
+        animStartTime = performance.now();
+        window.seek(0);
+      }
+    });
+
+    canvas.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        animStartTime = performance.now() - (pausedTimeOffset * 1000);
+      }
+    });
+  </script>
+</body>
+</html>
