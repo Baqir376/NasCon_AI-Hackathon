@@ -3,6 +3,8 @@ import { db } from '../db';
 import { CandidateArticle } from '../ingestion/types';
 import { CanonicalEdition, CanonicalStory, CanonicalSection } from './schema';
 import { synthesizeWithGemini } from './gemini';
+import { synthesizeWithGroq } from './groq';
+import { getEnv } from '../env';
 
 export interface AssembleEditionOptions {
   userId: string;
@@ -93,11 +95,19 @@ export async function assembleCanonicalEdition(
   }
 
   let totalTokens = 0;
-  let providerUsed: 'gemini' | 'extractive' = 'extractive';
+  let providerUsed: string = 'extractive';
+
+  const synthesizeArticle = async (cand: CandidateArticle, cat: string) => {
+    const env = getEnv();
+    if (env.LLM_PROVIDER === 'groq') {
+      return synthesizeWithGroq(cand, cat, depth);
+    }
+    return synthesizeWithGemini(cand, cat, depth);
+  };
 
   // Synthesize Lead Story
-  const leadSynth = await synthesizeWithGemini(leadCandidate, leadCandidate.category, depth);
-  if (leadSynth.provider === 'gemini') providerUsed = 'gemini';
+  const leadSynth = await synthesizeArticle(leadCandidate, leadCandidate.category);
+  if (leadSynth.provider !== 'extractive') providerUsed = leadSynth.provider;
   totalTokens += leadSynth.tokenUsage || 0;
 
   const leadStory: CanonicalStory = {
@@ -119,8 +129,8 @@ export async function assembleCanonicalEdition(
 
   // Synthesize Section Stories concurrently
   const sectionPromises = sectionCandidates.map(async (candidate, index) => {
-    const synth = await synthesizeWithGemini(candidate, candidate.category, depth);
-    if (synth.provider === 'gemini') providerUsed = 'gemini';
+    const synth = await synthesizeArticle(candidate, candidate.category);
+    if (synth.provider !== 'extractive') providerUsed = synth.provider;
     totalTokens += synth.tokenUsage || 0;
 
     return {
@@ -159,8 +169,8 @@ export async function assembleCanonicalEdition(
   // Synthesize Horizon story if present
   let horizonStory: CanonicalStory | undefined;
   if (horizonCandidate) {
-    const horizSynth = await synthesizeWithGemini(horizonCandidate, 'Broader Horizons (Discovery)', depth);
-    if (horizSynth.provider === 'gemini') providerUsed = 'gemini';
+    const horizSynth = await synthesizeArticle(horizonCandidate, 'Broader Horizons (Discovery)');
+    if (horizSynth.provider !== 'extractive') providerUsed = horizSynth.provider;
     totalTokens += horizSynth.tokenUsage || 0;
 
     horizonStory = {

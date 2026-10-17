@@ -7,7 +7,7 @@ const envSchema = z.object({
   GEMINI_API_KEY: z.string().optional().default(''),
   GEMINI_MODEL_ID: z.string().default('gemini-2.5-flash'),
   GROQ_API_KEY: z.string().optional().default(''),
-  GROQ_MODEL_ID: z.string().default('llama-3.1-8b-instant'),
+  GROQ_MODEL_ID: z.string().default('openai/gpt-oss-120b'),
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
   ENABLE_SERENDIPITY: z.enum(['true', 'false']).default('true'),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),

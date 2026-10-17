@@ -79,6 +79,7 @@ describe('Phase 3: AI Synthesis & Deterministic Fallback', () => {
 
   describe('Canonical Edition Assembly', () => {
     beforeEach(async () => {
+      process.env.LLM_PROVIDER = 'offline';
       // Ensure test user exists in database
       await db.user.upsert({
         where: { id: 'test-user-synthesis-001' },
