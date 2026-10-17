@@ -63,10 +63,36 @@ export function Masthead({
       </div>
 
       {/* Primary Newspaper Title Banner */}
-      <div className="masthead-main">
-        <p className="masthead-sub-tag">The Autonomous Daily Digest</p>
-        <h1 className="masthead-headline">{title.toUpperCase()}</h1>
-        <p className="masthead-motto">“VERITAS IN CURATION • ALL STORIES VERIFIED TO PRIMARY SOURCES”</p>
+      <div className="masthead-main flex items-center justify-between">
+        <div className="masthead-seal hidden sm:block">
+          <svg viewBox="0 0 100 100" className="rotating-seal">
+            <path id="seal-circle" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
+            <text className="seal-text">
+              <textPath xlinkHref="#seal-circle">
+                ★ VERITAS IN CURATION ★ MORNING PAPER ★
+              </textPath>
+            </text>
+          </svg>
+          <div className="seal-center">✦</div>
+        </div>
+
+        <div className="flex-1 text-center">
+          <p className="masthead-sub-tag">The Autonomous Daily Digest</p>
+          <h1 className="masthead-headline">{title.toUpperCase()}</h1>
+          <p className="masthead-motto">“VERITAS IN CURATION • ALL STORIES VERIFIED TO PRIMARY SOURCES”</p>
+        </div>
+
+        <div className="masthead-seal hidden sm:block opacity-80">
+          <svg viewBox="0 0 100 100" className="rotating-seal" style={{ animationDirection: 'reverse' }}>
+            <path id="seal-circle-2" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
+            <text className="seal-text">
+              <textPath xlinkHref="#seal-circle-2">
+                ★ VOL. I • EST. 2026 ★ FACT GROUNDED ★
+              </textPath>
+            </text>
+          </svg>
+          <div className="seal-center">⚜</div>
+        </div>
       </div>
 
       {/* Bottom Editorial Dateline & Controls */}

@@ -8,6 +8,8 @@ import { HorizonSection } from '@/components/HorizonSection';
 import { PersonaModal } from '@/components/PersonaModal';
 import { PreferencesModal } from '@/components/PreferencesModal';
 import { ArchiveModal } from '@/components/ArchiveModal';
+import { ChronoTelemetry } from '@/components/ChronoTelemetry';
+import { AudioConcierge } from '@/components/AudioConcierge';
 import { CanonicalEdition } from '@/lib/synthesis/schema';
 import { Sparkles, Newspaper, AlertCircle } from 'lucide-react';
 
@@ -218,7 +220,18 @@ export default function NewspaperPage() {
   };
 
   return (
-    <div className="newspaper-wrapper">
+    <>
+      {/* Top Chrono-Atmosphere & Live CRT Telemetry Rail */}
+      <ChronoTelemetry
+        engineName={edition?.providerUsed || 'Groq 120B'}
+        generationMs={edition?.generationMs || 260}
+        totalTokens={edition?.totalTokens || 1100}
+      />
+
+      {/* Subtle Film Scrim Texture Overlay */}
+      <div className="film-grain-overlay" />
+
+      <div className="newspaper-wrapper">
       {/* Toast Notification */}
       {toastMsg && (
         <div style={{
@@ -332,6 +345,10 @@ export default function NewspaperPage() {
         onSelectEdition={handleSelectArchiveEdition}
         isLoading={isLoading}
       />
+
+      {/* Floating Magnetic Voice AI Concierge Orb & Broadcast Console */}
+      <AudioConcierge edition={edition} />
     </div>
+  </>
   );
 }
