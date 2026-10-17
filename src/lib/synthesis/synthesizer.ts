@@ -216,12 +216,16 @@ export async function assembleCanonicalEdition(
   // Persist canonical edition in SQLite for history and provenance
   await db.$transaction(async (tx) => {
     // Upsert articles
+    // Upsert articles and track true database IDs to preserve foreign key constraints
     const allStories = [leadStory, ...sectionStories, ...(horizonStory ? [horizonStory] : [])];
+    const storyToArticleId = new Map<string, string>();
 
     for (const story of allStories) {
-      await tx.article.upsert({
+      const articleRecord = await tx.article.upsert({
         where: { url: story.sourceUrl },
-        update: {},
+        update: {
+          title: story.headline,
+        },
         create: {
           id: story.articleId,
           url: story.sourceUrl,
@@ -234,6 +238,7 @@ export async function assembleCanonicalEdition(
           leadImageUrl: story.leadImageUrl,
         },
       });
+      storyToArticleId.set(story.id, articleRecord.id);
     }
 
     // Create Edition
@@ -250,13 +255,14 @@ export async function assembleCanonicalEdition(
       },
     });
 
-    // Create Edition Articles
+    // Create Edition Articles with validated foreign key references
     for (const story of allStories) {
+      const validArticleId = storyToArticleId.get(story.id) || story.articleId;
       await tx.editionArticle.create({
         data: {
           id: story.id,
           editionId: editionRecord.id,
-          articleId: story.articleId,
+          articleId: validArticleId,
           sectionName: story.sectionName,
           positionOrder: story.positionOrder,
           headline: story.headline,
