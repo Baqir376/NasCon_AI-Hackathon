@@ -12,6 +12,16 @@ import { ChronoTelemetry } from '@/components/ChronoTelemetry';
 import { AudioConcierge } from '@/components/AudioConcierge';
 import { SmoothScroller } from '@/components/SmoothScroller';
 import { MagneticCursor } from '@/components/MagneticCursor';
+import { FloatingGlassHeader } from '@/components/FloatingGlassHeader';
+import { CommandPalette } from '@/components/CommandPalette';
+import { StardustHeroCanvas } from '@/components/StardustHeroCanvas';
+import { OrbitalVitrine } from '@/components/OrbitalVitrine';
+import { BezierMathSimulator } from '@/components/BezierMathSimulator';
+import { ArchitecturalBlueprint } from '@/components/ArchitecturalBlueprint';
+import { TelemetryDataTable } from '@/components/TelemetryDataTable';
+import { SolfeggioResonator } from '@/components/SolfeggioResonator';
+import { UIElementFoundry } from '@/components/UIElementFoundry';
+import { CalligraphySignature } from '@/components/CalligraphySignature';
 import { CanonicalEdition } from '@/lib/synthesis/schema';
 import { Sparkles, Newspaper, AlertCircle } from 'lucide-react';
 
@@ -44,6 +54,34 @@ export default function NewspaperPage() {
   const [isPersonaOpen, setIsPersonaOpen] = useState(false);
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+  const [isCmdOpen, setIsCmdOpen] = useState(false);
+
+  // Global hotkey listener for Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCmdOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleScrollToSection = (sectionId: string) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleSelectThemeDirect = (themeId: string) => {
+    document.documentElement.setAttribute('data-theme', themeId);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('morning-paper-theme', themeId);
+    }
+    showToast(`Atmosphere switched to ${themeId}`);
+  };
 
   // Show transient toast
   const showToast = (msg: string) => {
@@ -227,6 +265,12 @@ export default function NewspaperPage() {
       <SmoothScroller />
       <MagneticCursor />
 
+      {/* Floating Glass Pill Header clamped with 28px optical blur */}
+      <FloatingGlassHeader
+        onOpenCommandPalette={() => setIsCmdOpen(true)}
+        onScrollToSection={handleScrollToSection}
+      />
+
       {/* Top Chrono-Atmosphere & Live CRT Telemetry Rail */}
       <ChronoTelemetry
         engineName={edition?.providerUsed || 'Groq 120B'}
@@ -237,7 +281,10 @@ export default function NewspaperPage() {
       {/* Subtle Film Scrim Texture Overlay */}
       <div className="film-grain-overlay" />
 
-      <div className="newspaper-wrapper">
+      <div className="newspaper-wrapper" id="newspaper-main-content">
+      {/* Bioluminescent Stardust Canvas Background in Hero */}
+      <StardustHeroCanvas />
+
       {/* Toast Notification */}
       {toastMsg && (
         <div style={{
@@ -320,8 +367,32 @@ export default function NewspaperPage() {
           {edition.horizonStory && (
             <HorizonSection story={edition.horizonStory} onFeedback={handleFeedback} />
           )}
+
+          {/* ==============================================================
+              Awwwards Site of the Decade Flagship Architectural Sections
+              ============================================================== */}
+          <OrbitalVitrine />
+          <BezierMathSimulator />
+          <ArchitecturalBlueprint />
+          <TelemetryDataTable />
+          <SolfeggioResonator />
+          <UIElementFoundry />
+          <CalligraphySignature />
         </main>
       ) : null}
+
+      {/* Raycast / Linear Style Command Palette Modal */}
+      <CommandPalette
+        isOpen={isCmdOpen}
+        onClose={() => setIsCmdOpen(false)}
+        onRegenerate={handleGenerateFresh}
+        onDownloadPdf={handleDownloadPdf}
+        onOpenPreferences={() => setIsPreferencesOpen(true)}
+        onOpenArchive={handleOpenArchive}
+        onOpenPersona={() => setIsPersonaOpen(true)}
+        onSelectTheme={handleSelectThemeDirect}
+        onScrollToSection={handleScrollToSection}
+      />
 
       {/* Modals */}
       <PersonaModal
