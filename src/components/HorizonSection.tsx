@@ -2,15 +2,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Compass, ExternalLink, Sparkles, ThumbsUp, Bookmark } from 'lucide-react';
+import { Compass, ExternalLink, Sparkles, ThumbsUp, Bookmark, BookOpen } from 'lucide-react';
 import { CanonicalStory } from '@/lib/synthesis/schema';
+import { playAudioHaptic } from '@/lib/audio-haptics';
 
 interface HorizonSectionProps {
   story: CanonicalStory;
   onFeedback: (articleId: string, eventType: 'upvote' | 'skip' | 'save', topic?: string) => Promise<void>;
+  onOpenReader?: (story: CanonicalStory) => void;
 }
 
-export function HorizonSection({ story, onFeedback }: HorizonSectionProps) {
+export function HorizonSection({ story, onFeedback, onOpenReader }: HorizonSectionProps) {
   const [feedbackState, setFeedbackState] = useState<'idle' | 'upvoted' | 'saved'>('idle');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,7 +45,16 @@ export function HorizonSection({ story, onFeedback }: HorizonSectionProps) {
       <div className="horizon-card">
         <div className="horizon-grid">
           {/* Celestial Astronomy Visual Column */}
-          <div className="horizon-visual-col hidden md:block">
+          <div
+            className="horizon-visual-col hidden md:block cursor-pointer"
+            onClick={() => {
+              if (onOpenReader) {
+                playAudioHaptic('click');
+                onOpenReader(story);
+              }
+            }}
+            title="Open in Broadsheet Reading Room"
+          >
             <img
               src={horizonVisualUrl}
               alt="The Horizon Serendipity Discovery"
@@ -68,6 +79,7 @@ export function HorizonSection({ story, onFeedback }: HorizonSectionProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   data-cursor="Inspect Wire"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <strong>{story.sourceName}</strong>
                   <ExternalLink size={10} style={{ marginLeft: 3, display: 'inline' }} />
@@ -78,10 +90,17 @@ export function HorizonSection({ story, onFeedback }: HorizonSectionProps) {
               </span>
             </div>
 
-            <h3 className="horizon-headline">
-              <a href={story.sourceUrl} target="_blank" rel="noopener noreferrer">
-                {story.headline}
-              </a>
+            <h3
+              className="horizon-headline cursor-pointer"
+              onClick={() => {
+                if (onOpenReader) {
+                  playAudioHaptic('click');
+                  onOpenReader(story);
+                }
+              }}
+              title="Open in Broadsheet Reading Room"
+            >
+              <span>{story.headline}</span>
             </h3>
 
             <p className="horizon-narrative">{story.narrativeText}</p>
@@ -106,6 +125,21 @@ export function HorizonSection({ story, onFeedback }: HorizonSectionProps) {
             </div>
 
             <div className="horizon-actions-row">
+              {onOpenReader && (
+                <button
+                  onClick={() => {
+                    playAudioHaptic('click');
+                    onOpenReader(story);
+                  }}
+                  className="mini-action-btn active"
+                  title="Open in Broadsheet Reading Room"
+                  data-cursor="Read"
+                >
+                  <BookOpen size={11} />
+                  <span>Read Discovery</span>
+                </button>
+              )}
+
               <button
                 onClick={() => handleAction('upvote')}
                 disabled={isSubmitting || feedbackState === 'upvoted'}
@@ -127,6 +161,19 @@ export function HorizonSection({ story, onFeedback }: HorizonSectionProps) {
                 <Bookmark size={11} />
                 <span>{feedbackState === 'saved' ? 'Saved to Dossier' : 'Save Discovery'}</span>
               </button>
+
+              <a
+                href={story.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mini-action-btn"
+                title="Visit primary publisher wire"
+                data-cursor="Wire"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink size={11} />
+                <span>Wire ↗</span>
+              </a>
             </div>
           </div>
         </div>

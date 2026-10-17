@@ -2,16 +2,18 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ExternalLink, ThumbsUp, SkipForward, Bookmark, CheckCircle2, Quote, Sparkles, Clock, ShieldCheck, Tag, Compass, Radio } from 'lucide-react';
+import { ExternalLink, ThumbsUp, SkipForward, Bookmark, CheckCircle2, Quote, Sparkles, Clock, ShieldCheck, Tag, Radio, BookOpen } from 'lucide-react';
 import { CanonicalStory } from '@/lib/synthesis/schema';
 import { analyzeStoryNLP } from '@/lib/nlp';
+import { playAudioHaptic } from '@/lib/audio-haptics';
 
 interface LeadStoryCardProps {
   story: CanonicalStory;
   onFeedback: (articleId: string, eventType: 'upvote' | 'skip' | 'save', topic?: string) => Promise<void>;
+  onOpenReader?: (story: CanonicalStory) => void;
 }
 
-export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
+export function LeadStoryCard({ story, onFeedback, onOpenReader }: LeadStoryCardProps) {
   const [feedbackState, setFeedbackState] = useState<'idle' | 'upvoted' | 'skipped' | 'saved'>('idle');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNlpLens, setShowNlpLens] = useState(true);
@@ -82,10 +84,17 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
       </div>
 
       {/* Main Kinetic Headline */}
-      <h2 className="lead-headline">
-        <a href={story.sourceUrl} target="_blank" rel="noopener noreferrer">
-          {story.headline}
-        </a>
+      <h2
+        className="lead-headline cursor-pointer"
+        onClick={() => {
+          if (onOpenReader) {
+            playAudioHaptic('click');
+            onOpenReader(story);
+          }
+        }}
+        title="Open in Broadsheet Reading Room"
+      >
+        <span>{story.headline}</span>
       </h2>
 
       {/* NLP Cognitive Lens Telemetry Bar */}
@@ -122,7 +131,16 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
       )}
 
       {/* Curated Editorial Hero Visual Frame */}
-      <div className="lead-visual-container">
+      <div
+        className="lead-visual-container cursor-pointer"
+        onClick={() => {
+          if (onOpenReader) {
+            playAudioHaptic('click');
+            onOpenReader(story);
+          }
+        }}
+        title="Click to open Broadsheet Reading Room"
+      >
         <img
           src={heroImageSrc}
           alt={story.headline}
@@ -179,6 +197,21 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
           <div className="story-feedback-bar">
             <span className="feedback-label">Calibrate Bureau Frequency:</span>
             <div className="feedback-buttons">
+              {onOpenReader && (
+                <button
+                  onClick={() => {
+                    playAudioHaptic('click');
+                    onOpenReader(story);
+                  }}
+                  className="feedback-btn active-upvote"
+                  title="Open in Broadsheet Reading Room"
+                  data-cursor="Read Dispatch"
+                >
+                  <BookOpen size={13} />
+                  <span>Read Full Dispatch</span>
+                </button>
+              )}
+
               <button
                 onClick={() => handleAction('upvote')}
                 disabled={isSubmitting || feedbackState === 'upvoted'}

@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Command, Volume2, VolumeX, Compass, Activity, ShieldCheck, Database, Layers } from 'lucide-react';
+import { Sparkles, Command, Volume2, VolumeX, Mail } from 'lucide-react';
 import { audioHaptics } from '@/lib/audio-haptics';
 
 interface FloatingGlassHeaderProps {
   onOpenCommandPalette: () => void;
   onScrollToSection: (sectionId: string) => void;
+  onOpenEmailModal?: () => void;
 }
 
 export function FloatingGlassHeader({
   onOpenCommandPalette,
   onScrollToSection,
+  onOpenEmailModal,
 }: FloatingGlassHeaderProps) {
   const [isMuted, setIsMuted] = useState(false);
 
@@ -56,8 +58,19 @@ export function FloatingGlassHeader({
           ))}
         </div>
 
-        {/* Action Controls: Sound Haptics + Command Palette Trigger */}
+        {/* Action Controls: Sound Haptics + Email Courier + Command Palette Trigger */}
         <div className="pill-actions-section">
+          {onOpenEmailModal && (
+            <button
+              onClick={onOpenEmailModal}
+              className="pill-nav-btn nav-roll-btn hidden sm:flex"
+              title="Dispatch Morning Edition via Email Courier"
+            >
+              <Mail size={12} className="inline mr-1 text-amber-600 dark:text-amber-400" />
+              <span>Email Courier</span>
+            </button>
+          )}
+
           <button
             onClick={toggleSound}
             className={`pill-icon-btn ${isMuted ? 'muted' : ''}`}

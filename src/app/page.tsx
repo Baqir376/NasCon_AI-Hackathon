@@ -22,7 +22,9 @@ import { TelemetryDataTable } from '@/components/TelemetryDataTable';
 import { SolfeggioResonator } from '@/components/SolfeggioResonator';
 import { UIElementFoundry } from '@/components/UIElementFoundry';
 import { CalligraphySignature } from '@/components/CalligraphySignature';
-import { CanonicalEdition } from '@/lib/synthesis/schema';
+import { BroadsheetReaderModal } from '@/components/BroadsheetReaderModal';
+import { EmailDispatchModal } from '@/components/EmailDispatchModal';
+import { CanonicalEdition, CanonicalStory } from '@/lib/synthesis/schema';
 import { Sparkles, Newspaper, AlertCircle } from 'lucide-react';
 
 interface UserSessionState {
@@ -55,6 +57,39 @@ export default function NewspaperPage() {
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
   const [isCmdOpen, setIsCmdOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+
+  // Broadsheet Reading Room State
+  const [readingStory, setReadingStory] = useState<CanonicalStory | null>(null);
+  const [isReaderOpen, setIsReaderOpen] = useState(false);
+
+  const allStories = React.useMemo(() => {
+    if (!edition) return [];
+    return [
+      edition.leadStory,
+      ...edition.sections.flatMap((s) => s.stories),
+      ...(edition.horizonStory ? [edition.horizonStory] : []),
+    ];
+  }, [edition]);
+
+  const currentStoryIndex = allStories.findIndex((s) => s.id === readingStory?.id);
+
+  const handleNextStory = () => {
+    if (currentStoryIndex >= 0 && currentStoryIndex < allStories.length - 1) {
+      setReadingStory(allStories[currentStoryIndex + 1]);
+    }
+  };
+
+  const handlePrevStory = () => {
+    if (currentStoryIndex > 0) {
+      setReadingStory(allStories[currentStoryIndex - 1]);
+    }
+  };
+
+  const handleOpenReaderForStory = (story: CanonicalStory) => {
+    setReadingStory(story);
+    setIsReaderOpen(true);
+  };
 
   // Global hotkey listener for Cmd+K / Ctrl+K
   useEffect(() => {
@@ -269,6 +304,7 @@ export default function NewspaperPage() {
       <FloatingGlassHeader
         onOpenCommandPalette={() => setIsCmdOpen(true)}
         onScrollToSection={handleScrollToSection}
+        onOpenEmailModal={() => setIsEmailModalOpen(true)}
       />
 
       {/* Top Chrono-Atmosphere & Live CRT Telemetry Rail */}
@@ -320,6 +356,7 @@ export default function NewspaperPage() {
         onOpenArchive={handleOpenArchive}
         onDownloadPdf={handleDownloadPdf}
         onRegenerate={handleGenerateFresh}
+        onOpenEmailModal={() => setIsEmailModalOpen(true)}
         isGenerating={isGenerating}
         providerUsed={edition?.providerUsed}
       />
@@ -345,7 +382,11 @@ export default function NewspaperPage() {
       ) : edition ? (
         <main>
           {/* Front Page Lead Story Hero */}
-          <LeadStoryCard story={edition.leadStory} onFeedback={handleFeedback} />
+          <LeadStoryCard
+            story={edition.leadStory}
+            onFeedback={handleFeedback}
+            onOpenReader={handleOpenReaderForStory}
+          />
 
           {/* Thematic Sections */}
           {edition.sections.map((section, idx) => (
@@ -357,7 +398,12 @@ export default function NewspaperPage() {
 
               <div className="stories-columns-grid">
                 {section.stories.map((story) => (
-                  <StoryCard key={story.id} story={story} onFeedback={handleFeedback} />
+                  <StoryCard
+                    key={story.id}
+                    story={story}
+                    onFeedback={handleFeedback}
+                    onOpenReader={handleOpenReaderForStory}
+                  />
                 ))}
               </div>
             </section>
@@ -365,7 +411,11 @@ export default function NewspaperPage() {
 
           {/* "The Horizon" Serendipity Discovery Section */}
           {edition.horizonStory && (
-            <HorizonSection story={edition.horizonStory} onFeedback={handleFeedback} />
+            <HorizonSection
+              story={edition.horizonStory}
+              onFeedback={handleFeedback}
+              onOpenReader={handleOpenReaderForStory}
+            />
           )}
 
           {/* ==============================================================
@@ -392,6 +442,12 @@ export default function NewspaperPage() {
         onOpenPersona={() => setIsPersonaOpen(true)}
         onSelectTheme={handleSelectThemeDirect}
         onScrollToSection={handleScrollToSection}
+        onOpenEmailModal={() => setIsEmailModalOpen(true)}
+        onOpenReaderLead={() => {
+          if (edition?.leadStory) {
+            handleOpenReaderForStory(edition.leadStory);
+          }
+        }}
       />
 
       {/* Modals */}
@@ -421,6 +477,25 @@ export default function NewspaperPage() {
         currentEditionId={edition?.id}
         onSelectEdition={handleSelectArchiveEdition}
         isLoading={isLoading}
+      />
+
+      {/* The Broadsheet Newspaper Article Reading Room Modal */}
+      <BroadsheetReaderModal
+        story={readingStory}
+        isOpen={isReaderOpen}
+        onClose={() => setIsReaderOpen(false)}
+        onNextStory={handleNextStory}
+        onPrevStory={handlePrevStory}
+        onFeedback={handleFeedback}
+      />
+
+      {/* Email Courier Dispatch Modal */}
+      <EmailDispatchModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        editionId={edition?.id}
+        editionNumber={edition?.editionNumber}
+        defaultName={sessionUser?.name}
       />
 
       {/* Floating Magnetic Voice AI Concierge Orb & Broadcast Console */}

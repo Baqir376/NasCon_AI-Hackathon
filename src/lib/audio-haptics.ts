@@ -134,3 +134,13 @@ class AudioHapticsEngine {
 }
 
 export const audioHaptics = new AudioHapticsEngine();
+
+export function playAudioHaptic(type: 'click' | 'action' | 'bell' = 'click') {
+  if (type === 'click') {
+    audioHaptics.playClick(820, 0.04);
+  } else if (type === 'action') {
+    audioHaptics.playChime(660, 0.07);
+  } else if (type === 'bell') {
+    audioHaptics.playChime(880, 0.09);
+  }
+}

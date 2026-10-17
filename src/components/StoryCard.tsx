@@ -1,16 +1,29 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ExternalLink, ThumbsUp, SkipForward, Bookmark, CheckCircle2, Clock, ShieldCheck, Quote } from 'lucide-react';
+import {
+  ExternalLink,
+  ThumbsUp,
+  SkipForward,
+  Bookmark,
+  CheckCircle2,
+  Clock,
+  Quote,
+  BookOpen,
+} from 'lucide-react';
 import { CanonicalStory } from '@/lib/synthesis/schema';
 import { analyzeStoryNLP } from '@/lib/nlp';
+import { getEditorialImageForStory } from '@/lib/editorial-images';
+import { playAudioHaptic } from '@/lib/audio-haptics';
 
 interface StoryCardProps {
   story: CanonicalStory;
   onFeedback: (articleId: string, eventType: 'upvote' | 'skip' | 'save', topic?: string) => Promise<void>;
+  onOpenReader?: (story: CanonicalStory) => void;
 }
 
-export function StoryCard({ story, onFeedback }: StoryCardProps) {
+export function StoryCard({ story, onFeedback, onOpenReader }: StoryCardProps) {
   const [feedbackState, setFeedbackState] = useState<'idle' | 'upvoted' | 'skipped' | 'saved'>('idle');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -18,14 +31,31 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
     return analyzeStoryNLP(story.narrativeText, story.summaryBullets);
   }, [story.narrativeText, story.summaryBullets]);
 
+  const editorialImage = useMemo(() => {
+    return getEditorialImageForStory(
+      story.headline,
+      story.sectionName,
+      story.leadImageUrl,
+      story.positionOrder || 0
+    );
+  }, [story.headline, story.sectionName, story.leadImageUrl, story.positionOrder]);
+
   const handleAction = async (type: 'upvote' | 'skip' | 'save') => {
     if (isSubmitting) return;
     setIsSubmitting(true);
+    playAudioHaptic('action');
     try {
       await onFeedback(story.articleId, type, story.sectionName);
       setFeedbackState(type === 'upvote' ? 'upvoted' : type === 'skip' ? 'skipped' : 'saved');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCardClick = () => {
+    if (onOpenReader) {
+      playAudioHaptic('click');
+      onOpenReader(story);
     }
   };
 
@@ -38,7 +68,7 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
   }
 
   return (
-    <article className="story-card" data-cursor="Inspect Story">
+    <article className="story-card" data-cursor="Read Dispatch">
       {/* Top Meta & Origin */}
       <div className="story-meta">
         <span className="story-source">
@@ -48,6 +78,7 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
             rel="noopener noreferrer"
             title="Inspect primary source wire"
             data-cursor="Primary Wire"
+            onClick={(e) => e.stopPropagation()}
           >
             {story.sourceName}
             <ExternalLink size={10} style={{ marginLeft: 3, display: 'inline' }} />
@@ -56,7 +87,7 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
         <div className="flex items-center gap-2">
           <span className="story-telemetry-pill">
             <Clock size={10} />
-            <span>{nlp.readingTimeMinutes}m</span>
+            <span>{nlp.readingTimeMinutes}m read</span>
           </span>
           <span className="story-date">
             {new Date(story.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -64,11 +95,32 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
         </div>
       </div>
 
-      {/* Headline */}
-      <h3 className="story-headline">
-        <a href={story.sourceUrl} target="_blank" rel="noopener noreferrer">
-          {story.headline}
-        </a>
+      {/* Editorial Photograph Frame */}
+      {editorialImage && (
+        <div
+          className="story-card-image-box"
+          onClick={handleCardClick}
+          title="Click to open full newspaper article reading room"
+        >
+          <img
+            src={editorialImage.url}
+            alt={story.headline}
+            className="story-card-photo"
+            loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src =
+                'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1600&q=80';
+            }}
+          />
+          <div className="story-card-caption-bar">
+            <span>{editorialImage.caption}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Headline (Triggers Reading Room on Click) */}
+      <h3 className="story-headline" onClick={handleCardClick}>
+        <span className="cursor-pointer hover:underline">{story.headline}</span>
       </h3>
 
       {/* Narrative Lead */}
@@ -110,6 +162,18 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
 
       {/* Action Buttons */}
       <div className="story-card-actions">
+        {onOpenReader && (
+          <button
+            onClick={handleCardClick}
+            className="mini-action-btn read-dispatch-btn"
+            title="Open in Broadsheet Reading Room"
+            data-cursor="Read"
+          >
+            <BookOpen size={11} />
+            <span>Read Article</span>
+          </button>
+        )}
+
         <button
           onClick={() => handleAction('upvote')}
           disabled={isSubmitting || feedbackState === 'upvoted'}
@@ -140,8 +204,21 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
           data-cursor="Deprioritize"
         >
           <SkipForward size={11} />
-          <span>Deprioritize</span>
+          <span>Skip</span>
         </button>
+
+        <a
+          href={story.sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mini-action-btn external-wire-btn"
+          title="Visit original publisher reporting externally"
+          data-cursor="External Wire"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ExternalLink size={11} />
+          <span>Wire ↗</span>
+        </a>
       </div>
     </article>
   );

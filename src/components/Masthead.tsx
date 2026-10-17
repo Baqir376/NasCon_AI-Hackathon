@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Download, History, Sliders, Users, RefreshCw, Feather, ShieldCheck } from 'lucide-react';
+import { Download, History, Sliders, Users, RefreshCw, Feather, ShieldCheck, Mail } from 'lucide-react';
 
 interface MastheadProps {
   title: string;
@@ -15,6 +15,7 @@ interface MastheadProps {
   onRegenerate: () => void;
   isGenerating: boolean;
   providerUsed?: string;
+  onOpenEmailModal?: () => void;
 }
 
 export function Masthead({
@@ -29,6 +30,7 @@ export function Masthead({
   onRegenerate,
   isGenerating,
   providerUsed,
+  onOpenEmailModal,
 }: MastheadProps) {
   const formattedDate = new Date(editionDate).toLocaleDateString('en-US', {
     weekday: 'long',
@@ -139,6 +141,18 @@ export function Masthead({
             <Download size={13} />
             <span>Cold-Press Lithograph [PDF]</span>
           </button>
+
+          {onOpenEmailModal && (
+            <button
+              onClick={onOpenEmailModal}
+              className="control-btn"
+              title="Dispatch this morning edition directly to your inbox"
+              data-cursor="Email Courier"
+            >
+              <Mail size={13} className="text-amber-600 dark:text-amber-400" />
+              <span>Email Courier</span>
+            </button>
+          )}
 
           <button
             onClick={onOpenPreferences}

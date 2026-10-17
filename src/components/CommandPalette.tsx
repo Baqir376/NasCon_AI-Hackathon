@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Sparkles, Download, History, Sliders, Users, Sun, Moon, Palette, Compass, Activity, Volume2, ShieldCheck, X } from 'lucide-react';
+import { Search, Sparkles, Download, History, Sliders, Users, Sun, Moon, Palette, Compass, Activity, Volume2, ShieldCheck, X, Mail, BookOpen } from 'lucide-react';
 import { audioHaptics } from '@/lib/audio-haptics';
 
 export interface CommandItem {
@@ -24,6 +24,8 @@ interface CommandPaletteProps {
   onOpenPersona: () => void;
   onSelectTheme: (themeId: string) => void;
   onScrollToSection: (sectionId: string) => void;
+  onOpenEmailModal?: () => void;
+  onOpenReaderLead?: () => void;
 }
 
 export function CommandPalette({
@@ -36,12 +38,38 @@ export function CommandPalette({
   onOpenPersona,
   onSelectTheme,
   onScrollToSection,
+  onOpenEmailModal,
+  onOpenReaderLead,
 }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const commands: CommandItem[] = [
+    {
+      id: 'dispatch-email',
+      category: 'Dispatch',
+      title: 'Dispatch Edition via Email Courier',
+      subtitle: 'Deliver formatted broadsheet digest directly to personal inbox',
+      hotkey: '⌘E',
+      icon: <Mail size={14} className="text-amber-500" />,
+      action: () => {
+        if (onOpenEmailModal) onOpenEmailModal();
+        onClose();
+      },
+    },
+    {
+      id: 'read-lead',
+      category: 'Dispatch',
+      title: 'Open Broadsheet Reading Room',
+      subtitle: 'Immersive tactile paper reader with audio narration & primary wire source',
+      hotkey: 'Space',
+      icon: <BookOpen size={14} className="text-indigo-500" />,
+      action: () => {
+        if (onOpenReaderLead) onOpenReaderLead();
+        onClose();
+      },
+    },
     {
       id: 'dispatch-fresh',
       category: 'Dispatch',
