@@ -33,6 +33,12 @@ jobs:
       - name: Run Prisma Generate
         run: npx prisma generate
 
+      - name: Push Database Schema
+        run: npx prisma db push --skip-generate
+
+      - name: Run ESLint
+        run: npm run lint
+
       - name: Typecheck
         run: npm run typecheck
 
