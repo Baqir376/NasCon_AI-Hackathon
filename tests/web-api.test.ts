@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import crypto from 'crypto';
 import { db } from '../src/lib/db';
 import { signSessionToken } from '../src/lib/auth/session';
 
@@ -21,10 +22,18 @@ describe('Phase 4: Web Reader, Personalization & User Isolation', () => {
       createdAt: Date.now(),
     });
 
-    // Seed test users
+    // Seed/reset test users and clean baseline preferences
     await db.user.upsert({
       where: { id: userA.id },
-      update: {},
+      update: {
+        preferences: {
+          update: {
+            topics: JSON.stringify(['Clean Energy & Climate', 'Technology & AI']),
+            topicWeights: JSON.stringify({ 'Clean Energy & Climate': 1.0, 'Technology & AI': 1.0 }),
+            readingDepth: 'balanced',
+          },
+        },
+      },
       create: {
         id: userA.id,
         sessionToken: userA.token,
@@ -60,18 +69,15 @@ describe('Phase 4: Web Reader, Personalization & User Isolation', () => {
   });
 
   it('updates topic weights dynamically in response to upvote and skip feedback', async () => {
-    // Simulate upvoting Clean Energy
-    const prefsBefore = await db.userPreference.findUnique({ where: { userId: userA.id } });
-    const weightsBefore = JSON.parse(prefsBefore!.topicWeights);
-    const initialWeight = weightsBefore['Clean Energy & Climate'] || 1.0;
+    const initialWeight = 1.0;
+    const weights = { 'Clean Energy & Climate': initialWeight, 'Technology & AI': 1.0 };
 
-    // Upvote signal adds +0.15
-    const newWeight = initialWeight + 0.15;
-    weightsBefore['Clean Energy & Climate'] = newWeight;
+    // Simulate upvoting (+0.15)
+    weights['Clean Energy & Climate'] = Number((initialWeight + 0.15).toFixed(2));
 
     await db.userPreference.update({
       where: { userId: userA.id },
-      data: { topicWeights: JSON.stringify(weightsBefore) },
+      data: { topicWeights: JSON.stringify(weights) },
     });
 
     const prefsAfter = await db.userPreference.findUnique({ where: { userId: userA.id } });
@@ -80,10 +86,12 @@ describe('Phase 4: Web Reader, Personalization & User Isolation', () => {
   });
 
   it('enforces strict database tenant boundary: User A cannot see User B editions', async () => {
+    const uniqueEditionId = `edition-b-${crypto.randomUUID()}`;
+
     // Create an edition belonging specifically to User B
     const editionB = await db.edition.create({
       data: {
-        id: 'edition-b-private-001',
+        id: uniqueEditionId,
         userId: userB.id,
         editionNumber: 1,
         editionDate: new Date(),
