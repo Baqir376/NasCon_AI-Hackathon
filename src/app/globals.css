@@ -4,7 +4,8 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&family=Inter:wght@400;500;600;700&display=swap');
 
-:root {
+:root,
+[data-theme='broadsheet'] {
   --bg-paper: #fcfbf7;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
@@ -16,9 +17,107 @@
   --accent-burgundy: #8b0000;
   --accent-gold: #c59b27;
   --accent-blue: #0f4c81;
+  --accent-primary: #8b0000;
+  --accent-secondary: #c59b27;
   --font-masthead: 'Cinzel', 'Times New Roman', serif;
   --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 1. Red & Charcoal (Bespoke Luxury Dark Mode) */
+[data-theme='dark-charcoal'],
+[data-theme='midnight'] {
+  --bg-paper: #0e0f12;
+  --bg-surface: #16181d;
+  --bg-card: #16181d;
+  --text-main: #f0ede6;
+  --text-secondary: #c4c1b8;
+  --text-muted: #888680;
+  --ink-border: #2c2e36;
+  --border-light: #22242c;
+  --accent-burgundy: #e53935;
+  --accent-gold: #ff5252;
+  --accent-blue: #ef5350;
+  --accent-primary: #e53935;
+  --accent-secondary: #ef5350;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
+}
+
+/* 2. Dark Olive & Cream */
+[data-theme='olive-cream'] {
+  --bg-paper: #181e17;
+  --bg-surface: #222920;
+  --bg-card: #222920;
+  --text-main: #fdf8e6;
+  --text-secondary: #ded6be;
+  --text-muted: #9e9782;
+  --ink-border: #353e32;
+  --border-light: #2c3629;
+  --accent-burgundy: #d4af37;
+  --accent-gold: #c5a059;
+  --accent-blue: #8a9a7a;
+  --accent-primary: #d4af37;
+  --accent-secondary: #a3b18a;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
+}
+
+/* 3. Burnished Copper & Midnight Teal */
+[data-theme='copper-teal'] {
+  --bg-paper: #09161a;
+  --bg-surface: #0f2228;
+  --bg-card: #0f2228;
+  --text-main: #f0f5f5;
+  --text-secondary: #a8c0c4;
+  --text-muted: #6e868a;
+  --ink-border: #1d3b44;
+  --border-light: #162f36;
+  --accent-burgundy: #d97746;
+  --accent-gold: #f28f57;
+  --accent-blue: #38bdf8;
+  --accent-primary: #d97746;
+  --accent-secondary: #f28f57;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
+}
+
+/* 4. Forest Teal & Light Concrete Grey */
+[data-theme='forest-concrete'] {
+  --bg-paper: #e8eceb;
+  --bg-surface: #f4f6f5;
+  --bg-card: #f4f6f5;
+  --text-main: #0c2423;
+  --text-secondary: #244a48;
+  --text-muted: #537573;
+  --ink-border: #123836;
+  --border-light: #c2ccc9;
+  --accent-burgundy: #0e4a46;
+  --accent-gold: #c86a42;
+  --accent-blue: #0e4a46;
+  --accent-primary: #0e4a46;
+  --accent-secondary: #c86a42;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 5. Natural White Oak & Travertine */
+[data-theme='whiteoak-travertine'] {
+  --bg-paper: #f4efe6;
+  --bg-surface: #faf6ee;
+  --bg-card: #faf6ee;
+  --text-main: #2b241c;
+  --text-secondary: #5c4f41;
+  --text-muted: #8c7b69;
+  --ink-border: #42382c;
+  --border-light: #d9d0c1;
+  --accent-burgundy: #8a6240;
+  --accent-gold: #c29a6b;
+  --accent-blue: #6d543d;
+  --accent-primary: #8a6240;
+  --accent-secondary: #c29a6b;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -330,6 +429,25 @@ a {
   border-radius: 2px;
 }
 
+[data-theme='dark-charcoal'] .why-it-matters-box,
+[data-theme='midnight'] .why-it-matters-box {
+  background: rgba(229, 57, 53, 0.08);
+  border-color: rgba(229, 57, 53, 0.25);
+  border-left-color: #e53935;
+}
+
+[data-theme='olive-cream'] .why-it-matters-box {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.25);
+  border-left-color: #d4af37;
+}
+
+[data-theme='copper-teal'] .why-it-matters-box {
+  background: rgba(217, 119, 70, 0.08);
+  border-color: rgba(217, 119, 70, 0.25);
+  border-left-color: #d97746;
+}
+
 .why-label {
   display: block;
   font-family: var(--font-sans);
@@ -340,6 +458,19 @@ a {
   margin-bottom: 0.2rem;
 }
 
+[data-theme='dark-charcoal'] .why-label,
+[data-theme='midnight'] .why-label {
+  color: #ff5252;
+}
+
+[data-theme='olive-cream'] .why-label {
+  color: #d4af37;
+}
+
+[data-theme='copper-teal'] .why-label {
+  color: #f28f57;
+}
+
 .why-text {
   font-family: var(--font-sans);
   font-size: 0.85rem;
@@ -347,11 +478,26 @@ a {
   line-height: 1.5;
 }
 
+[data-theme='dark-charcoal'] .why-text,
+[data-theme='midnight'] .why-text,
+[data-theme='olive-cream'] .why-text,
+[data-theme='copper-teal'] .why-text {
+  color: var(--text-main);
+}
+
 .lead-bullets-col {
   background: #faf9f6;
   border: 1px solid var(--border-light);
   padding: 1.25rem;
   border-radius: 2px;
+}
+
+[data-theme='dark-charcoal'] .lead-bullets-col,
+[data-theme='midnight'] .lead-bullets-col,
+[data-theme='olive-cream'] .lead-bullets-col,
+[data-theme='copper-teal'] .lead-bullets-col {
+  background: var(--bg-surface);
+  border-color: var(--border-light);
 }
 
 .takeaways-title {
@@ -1881,8 +2027,9 @@ a {
   .telemetry-rail,
   .concierge-launcher-container,
   .concierge-drawer-backdrop,
-  .editorial-cursor-dot,
-  .editorial-cursor-ring {
+  .ink-fluid-droplet,
+  .ink-trail-droplet,
+  .ink-fluid-ring {
     display: none !important;
   }
   .lead-story-card,
@@ -1898,84 +2045,340 @@ a {
    Awwwards-Tier Bespoke Interactions & Motion Primitives
    ========================================================================= */
 
-/* Magnetic Editorial Custom Cursor */
-.editorial-cursor-dot {
+/* =========================================================================
+   Awwwards-Tier Bespoke Red Fluid Ink Cursor & Motion Primitives
+   ========================================================================= */
+
+/* Primary Fluid Red Ink Droplet */
+.ink-fluid-droplet {
+  position: fixed;
+  top: -6px;
+  left: -6px;
+  width: 13px;
+  height: 13px;
+  background: radial-gradient(circle at 35% 35%, #ff5252 0%, #e53935 40%, #b71c1c 85%, #7f0000 100%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100000;
+  box-shadow: 0 0 10px rgba(229, 57, 53, 0.7),
+              0 0 22px rgba(183, 28, 28, 0.4),
+              inset 0 1px 2px rgba(255, 255, 255, 0.4);
+  transition: opacity 0.2s ease;
+  will-change: transform;
+}
+
+.ink-gloss-reflection {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  filter: blur(0.3px);
+}
+
+.ink-splat {
+  animation: ink-squish-splash 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes ink-squish-splash {
+  0% { transform: scale(1); }
+  40% { transform: scale(2.2, 0.5) rotate(15deg); }
+  100% { transform: scale(1); }
+}
+
+/* Secondary Trailing Viscous Droplet */
+.ink-trail-droplet {
   position: fixed;
   top: -4px;
   left: -4px;
   width: 8px;
   height: 8px;
-  background-color: var(--accent-burgundy, #8b0000);
+  background: radial-gradient(circle at 40% 40%, #ef5350 0%, #c62828 100%);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 100000;
-  transition: opacity 0.2s ease, transform 0.05s linear;
-  mix-blend-mode: difference;
+  z-index: 99998;
+  box-shadow: 0 0 8px rgba(211, 47, 47, 0.5);
+  transition: opacity 0.3s ease;
+  will-change: transform;
 }
 
-[data-theme='midnight'] .editorial-cursor-dot {
-  background-color: #fbbf24;
-}
-
-.editorial-cursor-ring {
+/* Fluid Ink Bleed Follower Aura */
+.ink-fluid-ring {
   position: fixed;
   top: -20px;
   left: -20px;
   width: 40px;
   height: 40px;
-  border: 1.5px solid rgba(139, 0, 0, 0.45);
+  border: 1.5px solid rgba(229, 57, 53, 0.45);
+  background: rgba(229, 57, 53, 0.05);
   border-radius: 50%;
   pointer-events: none;
   z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: width 0.3s cubic-bezier(0.75, 0, 0.25, 1),
-              height 0.3s cubic-bezier(0.75, 0, 0.25, 1),
-              background 0.3s cubic-bezier(0.75, 0, 0.25, 1),
-              border-color 0.3s cubic-bezier(0.75, 0, 0.25, 1);
+  transition: width 0.35s cubic-bezier(0.75, 0, 0.25, 1),
+              height 0.35s cubic-bezier(0.75, 0, 0.25, 1),
+              background 0.35s cubic-bezier(0.75, 0, 0.25, 1),
+              border-color 0.35s cubic-bezier(0.75, 0, 0.25, 1),
+              box-shadow 0.35s ease;
+  box-shadow: 0 0 14px rgba(229, 57, 53, 0.15);
 }
 
-[data-theme='midnight'] .editorial-cursor-ring {
-  border-color: rgba(251, 191, 36, 0.5);
+.ink-fluid-ring.hovered {
+  width: 72px;
+  height: 72px;
+  top: -36px;
+  left: -36px;
+  background: rgba(229, 57, 53, 0.14);
+  border-color: #e53935;
+  box-shadow: 0 0 24px rgba(229, 57, 53, 0.35);
+  backdrop-filter: blur(1.5px);
 }
 
-.editorial-cursor-ring.hovered {
-  width: 68px;
-  height: 68px;
-  top: -34px;
-  left: -34px;
-  background: rgba(139, 0, 0, 0.08);
-  border-color: var(--accent-burgundy, #8b0000);
-  backdrop-filter: blur(1px);
+.ink-fluid-ring.clicking {
+  transform: scale(0.85);
+  border-color: #b71c1c;
+  background: rgba(183, 28, 28, 0.25);
 }
 
-[data-theme='midnight'] .editorial-cursor-ring.hovered {
-  background: rgba(251, 191, 36, 0.12);
-  border-color: #fbbf24;
-}
-
-.cursor-label {
+.ink-cursor-label {
   font-family: var(--font-sans);
   font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-border);
+  color: #b71c1c;
   text-align: center;
   pointer-events: none;
   white-space: nowrap;
 }
 
-[data-theme='midnight'] .cursor-label {
-  color: #fbbf24;
+[data-theme='dark-charcoal'] .ink-cursor-label,
+[data-theme='midnight'] .ink-cursor-label {
+  color: #ff5252;
 }
 
 @media (pointer: coarse) or (hover: none) {
-  .editorial-cursor-dot,
-  .editorial-cursor-ring {
+  .ink-fluid-droplet,
+  .ink-trail-droplet,
+  .ink-fluid-ring {
     display: none !important;
   }
+}
+
+/* =========================================================================
+   Atmospheric Color Schemes Dropdown Menu
+   ========================================================================= */
+
+.theme-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.theme-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-main);
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-dropdown-trigger:hover {
+  border-color: var(--accent-primary);
+}
+
+.theme-swatch-duo {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.swatch-half {
+  width: 50%;
+  height: 100%;
+}
+
+.theme-trigger-name {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron-icon {
+  transition: transform 0.2s ease;
+  color: var(--text-muted);
+}
+
+.chevron-icon.open {
+  transform: rotate(180deg);
+}
+
+.theme-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 310px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  z-index: 10000;
+  overflow: hidden;
+  animation: dropdown-fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdown-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.theme-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid var(--border-light);
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+[data-theme='dark-charcoal'] .theme-dropdown-header,
+[data-theme='midnight'] .theme-dropdown-header,
+[data-theme='olive-cream'] .theme-dropdown-header,
+[data-theme='copper-teal'] .theme-dropdown-header {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.theme-options-list {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.theme-option-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+  color: var(--text-main);
+}
+
+.theme-option-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark-charcoal'] .theme-option-item:hover,
+[data-theme='midnight'] .theme-option-item:hover,
+[data-theme='olive-cream'] .theme-option-item:hover,
+[data-theme='copper-teal'] .theme-option-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.theme-option-item.selected {
+  background: rgba(229, 57, 53, 0.08);
+}
+
+[data-theme='dark-charcoal'] .theme-option-item.selected,
+[data-theme='midnight'] .theme-option-item.selected {
+  background: rgba(229, 57, 53, 0.16);
+}
+
+.theme-option-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.theme-option-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.theme-option-text {
+  min-width: 0;
+}
+
+.theme-option-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.theme-option-title {
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.theme-option-category {
+  font-family: var(--font-sans);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-muted);
+}
+
+[data-theme='dark-charcoal'] .theme-option-category,
+[data-theme='midnight'] .theme-option-category,
+[data-theme='olive-cream'] .theme-option-category,
+[data-theme='copper-teal'] .theme-option-category {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+}
+
+.theme-option-desc {
+  font-family: var(--font-serif);
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.theme-check-icon {
+  color: #e53935;
+  flex-shrink: 0;
+  margin-left: 6px;
 }
 
 /* Coordinate Beacon */
