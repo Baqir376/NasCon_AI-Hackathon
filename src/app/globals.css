@@ -137,6 +137,11 @@ body {
   min-height: 100vh;
 }
 
+body.modal-open,
+body.drawer-open {
+  overflow: hidden !important;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -906,10 +911,12 @@ a {
   justify-content: center;
   z-index: 1000;
   padding: 1.5rem;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
 }
 
 .modal-container {
-  background: #ffffff;
+  background: var(--bg-card, #ffffff);
   border: 1px solid var(--ink-border);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   max-width: 680px;
@@ -917,7 +924,10 @@ a {
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  border-radius: 3px;
+  border-radius: 4px;
+  margin: auto;
+  min-height: 0;
+  overflow: hidden;
   animation: modalFadeIn 0.2s ease-out;
 }
 
@@ -972,7 +982,11 @@ a {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  overflow-y: auto;
+  overflow-y: auto !important;
+  flex: 1 1 0%;
+  min-height: 0 !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .persona-card {
@@ -1057,10 +1071,14 @@ a {
 
 .preferences-body {
   padding: 1.25rem 1.5rem;
-  overflow-y: auto;
+  overflow-y: auto !important;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  flex: 1 1 0%;
+  min-height: 0 !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .pref-label {
@@ -1155,10 +1173,14 @@ a {
 
 .archive-list {
   padding: 1rem 1.5rem;
-  overflow-y: auto;
+  overflow-y: auto !important;
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
+  flex: 1 1 0%;
+  min-height: 0 !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .archive-row {
@@ -3533,8 +3555,11 @@ a {
 
 .drawer-body {
   padding: 1.5rem;
-  overflow-y: auto;
-  flex: 1;
+  overflow-y: auto !important;
+  flex: 1 1 0%;
+  min-height: 0 !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .drawer-title {
@@ -4430,14 +4455,16 @@ a {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  overflow-y: auto;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
 }
 
 .broadsheet-reader-paper {
   position: relative;
   width: 100%;
   max-width: 960px;
-  max-height: 92vh;
+  height: 90vh;
+  max-height: 90vh;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 6px;
@@ -4445,6 +4472,8 @@ a {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin: auto;
+  min-height: 0;
   animation: unfoldBroadsheet 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -4572,8 +4601,11 @@ a {
 
 .reader-scroll-content {
   padding: 2.25rem 2.5rem 3rem;
-  overflow-y: auto;
-  flex: 1;
+  overflow-y: auto !important;
+  flex: 1 1 0%;
+  min-height: 0 !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .reader-dateline-stripe {
@@ -4936,19 +4968,25 @@ a {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
 }
 
 .email-dispatch-modal {
   position: relative;
   width: 100%;
   max-width: 640px;
+  max-height: 90vh;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 6px;
   box-shadow: 0 28px 72px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(154, 123, 56, 0.2);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  margin: auto;
+  min-height: 0;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
   animation: modalScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -5373,6 +5411,61 @@ a {
   text-decoration: none;
 }
 
+/* =========================================================================
+   Bespoke Editorial Scrollbars for Nested Containers
+   ========================================================================= */
 
+.reader-scroll-content::-webkit-scrollbar,
+.drawer-body::-webkit-scrollbar,
+.persona-grid::-webkit-scrollbar,
+.preferences-body::-webkit-scrollbar,
+.archive-list::-webkit-scrollbar,
+.cmd-results-list::-webkit-scrollbar,
+.theme-options-list::-webkit-scrollbar,
+.concierge-transcript::-webkit-scrollbar,
+.table-responsive-container::-webkit-scrollbar,
+.email-dispatch-modal::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
 
+.reader-scroll-content::-webkit-scrollbar-track,
+.drawer-body::-webkit-scrollbar-track,
+.persona-grid::-webkit-scrollbar-track,
+.preferences-body::-webkit-scrollbar-track,
+.archive-list::-webkit-scrollbar-track,
+.cmd-results-list::-webkit-scrollbar-track,
+.theme-options-list::-webkit-scrollbar-track,
+.concierge-transcript::-webkit-scrollbar-track,
+.table-responsive-container::-webkit-scrollbar-track,
+.email-dispatch-modal::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+}
 
+.reader-scroll-content::-webkit-scrollbar-thumb,
+.drawer-body::-webkit-scrollbar-thumb,
+.persona-grid::-webkit-scrollbar-thumb,
+.preferences-body::-webkit-scrollbar-thumb,
+.archive-list::-webkit-scrollbar-thumb,
+.cmd-results-list::-webkit-scrollbar-thumb,
+.theme-options-list::-webkit-scrollbar-thumb,
+.concierge-transcript::-webkit-scrollbar-thumb,
+.table-responsive-container::-webkit-scrollbar-thumb,
+.email-dispatch-modal::-webkit-scrollbar-thumb {
+  background: rgba(154, 123, 56, 0.45);
+  border-radius: 4px;
+}
+
+.reader-scroll-content::-webkit-scrollbar-thumb:hover,
+.drawer-body::-webkit-scrollbar-thumb:hover,
+.persona-grid::-webkit-scrollbar-thumb:hover,
+.preferences-body::-webkit-scrollbar-thumb:hover,
+.archive-list::-webkit-scrollbar-thumb:hover,
+.cmd-results-list::-webkit-scrollbar-thumb:hover,
+.theme-options-list::-webkit-scrollbar-thumb:hover,
+.concierge-transcript::-webkit-scrollbar-thumb:hover,
+.table-responsive-container::-webkit-scrollbar-thumb:hover,
+.email-dispatch-modal::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
+}

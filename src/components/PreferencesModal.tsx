@@ -40,6 +40,27 @@ export function PreferencesModal({
   const [readingDepth, setReadingDepth] = useState<'quick_scan' | 'balanced' | 'deep_dive'>(currentReadingDepth);
   const [serendipity, setSerendipity] = useState<boolean>(currentSerendipity);
 
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.stop();
+      }
+    } else {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const toggleTopic = (topic: string) => {
@@ -58,8 +79,18 @@ export function PreferencesModal({
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container">
+    <div
+      className="modal-overlay"
+      data-lenis-prevent="true"
+      onClick={onClose}
+      onWheel={(e) => e.stopPropagation()}
+    >
+      <div
+        className="modal-container"
+        data-lenis-prevent="true"
+        onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <div>
             <h3 className="modal-title">Editorial Preferences & Topics</h3>
@@ -72,7 +103,11 @@ export function PreferencesModal({
           </button>
         </div>
 
-        <div className="preferences-body">
+        <div
+          className="preferences-body"
+          data-lenis-prevent="true"
+          onWheel={(e) => e.stopPropagation()}
+        >
           {/* Topics Selection */}
           <div className="pref-section">
             <h4 className="pref-label">Curated Beats & Interests (Select at least 1):</h4>

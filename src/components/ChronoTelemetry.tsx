@@ -187,12 +187,20 @@ export function ChronoTelemetry({
           </button>
 
           {isDropdownOpen && (
-            <div className="theme-dropdown-menu">
+            <div
+              className="theme-dropdown-menu"
+              data-lenis-prevent="true"
+              onWheel={(e) => e.stopPropagation()}
+            >
               <div className="theme-dropdown-header">
                 <Palette size={12} className="text-amber-500" />
                 <span>EDITORIAL ATMOSPHERE & COLOR SCHEMES</span>
               </div>
-              <div className="theme-options-list">
+              <div
+                className="theme-options-list"
+                data-lenis-prevent="true"
+                onWheel={(e) => e.stopPropagation()}
+              >
                 {COLOR_THEMES.map((theme) => {
                   const isSelected = theme.id === currentTheme;
                   return (

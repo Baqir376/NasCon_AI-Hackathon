@@ -47,6 +47,28 @@ export function EmailDispatchModal({
     previewHtml?: string;
   } | null>(null);
 
+  // Lock body scroll and pause Lenis while Email Modal is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.stop();
+      }
+    } else {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSendDispatch = async (e: React.FormEvent) => {
@@ -112,12 +134,19 @@ export function EmailDispatchModal({
   return (
     <div
       className="email-dispatch-overlay"
+      data-lenis-prevent="true"
       onClick={onClose}
+      onWheel={(e) => e.stopPropagation()}
       role="dialog"
       aria-modal="true"
       aria-label="Dispatch Morning Edition via Email Courier"
     >
-      <div className="email-dispatch-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="email-dispatch-modal"
+        data-lenis-prevent="true"
+        onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+      >
         {/* Modal Top Header */}
         <div className="email-modal-header">
           <div className="flex items-center gap-2">

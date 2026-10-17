@@ -251,11 +251,43 @@ export function CommandPalette({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, filtered, selectedIndex, onClose]);
 
+  // Lock body scroll and pause Lenis while Command Palette is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.stop();
+      }
+    } else {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="cmd-backdrop" onClick={onClose}>
-      <div className="cmd-palette-modal" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="cmd-backdrop"
+      data-lenis-prevent="true"
+      onClick={onClose}
+      onWheel={(e) => e.stopPropagation()}
+    >
+      <div
+        className="cmd-palette-modal"
+        data-lenis-prevent="true"
+        onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+      >
         {/* Search Input Bar */}
         <div className="cmd-input-container">
           <Search size={16} className="cmd-search-icon" />
@@ -276,7 +308,11 @@ export function CommandPalette({
         </div>
 
         {/* Results List */}
-        <div className="cmd-results-list">
+        <div
+          className="cmd-results-list"
+          data-lenis-prevent="true"
+          onWheel={(e) => e.stopPropagation()}
+        >
           {filtered.length === 0 ? (
             <div className="cmd-empty-state">
               <p>No commands matching &ldquo;{query}&rdquo;</p>

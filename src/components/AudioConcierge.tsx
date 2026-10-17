@@ -28,6 +28,28 @@ export function AudioConcierge({ edition }: AudioConciergeProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Lock body scroll and pause Lenis while Concierge drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('drawer-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.stop();
+      }
+    } else {
+      document.body.classList.remove('drawer-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    }
+
+    return () => {
+      document.body.classList.remove('drawer-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    };
+  }, [isOpen]);
+
   // Handle Text-to-Speech (Read Aloud)
   const toggleReadAloud = () => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
@@ -217,8 +239,18 @@ export function AudioConcierge({ edition }: AudioConciergeProps) {
 
       {/* Slide-over Editorial AI Console Drawer */}
       {isOpen && (
-        <div className="concierge-drawer-backdrop" onClick={() => setIsOpen(false)}>
-          <div className="concierge-drawer" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="concierge-drawer-backdrop"
+          data-lenis-prevent="true"
+          onClick={() => setIsOpen(false)}
+          onWheel={(e) => e.stopPropagation()}
+        >
+          <div
+            className="concierge-drawer"
+            data-lenis-prevent="true"
+            onClick={(e) => e.stopPropagation()}
+            onWheel={(e) => e.stopPropagation()}
+          >
             {/* Drawer Header */}
             <div className="concierge-drawer-header">
               <div className="concierge-drawer-title-group">
@@ -257,7 +289,11 @@ export function AudioConcierge({ edition }: AudioConciergeProps) {
             </div>
 
             {/* Chat Transcript Area */}
-            <div className="concierge-transcript">
+            <div
+              className="concierge-transcript"
+              data-lenis-prevent="true"
+              onWheel={(e) => e.stopPropagation()}
+            >
               {messages.map((m, idx) => (
                 <div
                   key={idx}

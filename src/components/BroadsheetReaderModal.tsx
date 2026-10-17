@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   X,
   ExternalLink,
@@ -46,6 +46,29 @@ export function BroadsheetReaderModal({
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [feedbackState, setFeedbackState] = useState<'idle' | 'upvoted' | 'saved'>('idle');
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const scrollContentRef = useRef<HTMLDivElement>(null);
+
+  // Lock body scroll and pause Lenis smooth scroller while Reading Room is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.stop();
+      }
+    } else {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    };
+  }, [isOpen]);
 
   // Close on Escape, navigate on Arrow keys
   useEffect(() => {
@@ -127,17 +150,28 @@ export function BroadsheetReaderModal({
     }
   };
 
+  const handlePaperWheel = (e: React.WheelEvent) => {
+    e.stopPropagation();
+    if (scrollContentRef.current && e.target !== scrollContentRef.current) {
+      scrollContentRef.current.scrollTop += e.deltaY;
+    }
+  };
+
   return (
     <div
       className="broadsheet-reader-overlay"
+      data-lenis-prevent="true"
       onClick={onClose}
+      onWheel={(e) => e.stopPropagation()}
       role="dialog"
       aria-modal="true"
       aria-label="Broadsheet Article Reading Room"
     >
       <div
         className="broadsheet-reader-paper"
+        data-lenis-prevent="true"
         onClick={(e) => e.stopPropagation()}
+        onWheel={handlePaperWheel}
         style={{ '--reader-font-size': `${fontSize}px` } as React.CSSProperties}
       >
         {/* Top Reading Room Header Rail */}
@@ -209,7 +243,13 @@ export function BroadsheetReaderModal({
         </header>
 
         {/* Paper Container Body */}
-        <div className="reader-scroll-content">
+        <div
+          ref={scrollContentRef}
+          className="reader-scroll-content"
+          data-lenis-prevent="true"
+          tabIndex={0}
+          onWheel={(e) => e.stopPropagation()}
+        >
           {/* Authentic Newspaper Dateline Bar */}
           <div className="reader-dateline-stripe">
             <div className="reader-origin-badge">

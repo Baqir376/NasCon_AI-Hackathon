@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Filter, ShieldCheck, ExternalLink, X, ChevronRight, FileCode, CheckCircle2 } from 'lucide-react';
 import { audioHaptics } from '@/lib/audio-haptics';
 
@@ -91,6 +91,28 @@ export function TelemetryDataTable() {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [inspectingWire, setInspectingWire] = useState<WireRow | null>(null);
 
+  // Lock body scroll and pause Lenis while Inspection Drawer is open
+  useEffect(() => {
+    if (inspectingWire) {
+      document.body.classList.add('drawer-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.stop();
+      }
+    } else {
+      document.body.classList.remove('drawer-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    }
+
+    return () => {
+      document.body.classList.remove('drawer-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    };
+  }, [inspectingWire]);
+
   const categories = ['ALL', 'Technology & AI', 'Science & Space', 'Markets & Policy', 'Serendipity Horizon'];
 
   const filtered = useMemo(() => {
@@ -153,7 +175,7 @@ export function TelemetryDataTable() {
         </div>
 
         {/* Dense Table */}
-        <div className="table-responsive-container">
+        <div className="table-responsive-container" data-lenis-prevent="true" onWheel={(e) => e.stopPropagation()}>
           <table className="dense-telemetry-table">
             <thead>
               <tr>
@@ -200,8 +222,18 @@ export function TelemetryDataTable() {
 
       {/* Wire Inspection Side-Drawer */}
       {inspectingWire && (
-        <div className="drawer-backdrop" onClick={() => setInspectingWire(null)}>
-          <div className="inspection-drawer" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="drawer-backdrop"
+          data-lenis-prevent="true"
+          onClick={() => setInspectingWire(null)}
+          onWheel={(e) => e.stopPropagation()}
+        >
+          <div
+            className="inspection-drawer"
+            data-lenis-prevent="true"
+            onClick={(e) => e.stopPropagation()}
+            onWheel={(e) => e.stopPropagation()}
+          >
             <div className="drawer-header">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={16} className="text-emerald-500" />
@@ -216,7 +248,11 @@ export function TelemetryDataTable() {
               </button>
             </div>
 
-            <div className="drawer-body">
+            <div
+              className="drawer-body"
+              data-lenis-prevent="true"
+              onWheel={(e) => e.stopPropagation()}
+            >
               <h3 className="drawer-title">{inspectingWire.title}</h3>
 
               <div className="drawer-meta-grid">

@@ -30,11 +30,42 @@ export function ArchiveModal({
   onSelectEdition,
   isLoading,
 }: ArchiveModalProps) {
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.stop();
+      }
+    } else {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container">
+    <div
+      className="modal-overlay"
+      data-lenis-prevent="true"
+      onClick={onClose}
+      onWheel={(e) => e.stopPropagation()}
+    >
+      <div
+        className="modal-container"
+        data-lenis-prevent="true"
+        onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <div>
             <h3 className="modal-title">Newspaper Archive</h3>
@@ -47,7 +78,11 @@ export function ArchiveModal({
           </button>
         </div>
 
-        <div className="archive-list">
+        <div
+          className="archive-list"
+          data-lenis-prevent="true"
+          onWheel={(e) => e.stopPropagation()}
+        >
           {editions.length === 0 ? (
             <div className="archive-empty">
               <Calendar size={32} />

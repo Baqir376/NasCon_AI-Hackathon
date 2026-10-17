@@ -29,11 +29,42 @@ export function PersonaModal({
   onSelectPersona,
   isSwitching,
 }: PersonaModalProps) {
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.stop();
+      }
+    } else {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+      if (typeof window !== 'undefined') {
+        window.__lenis?.start();
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container">
+    <div
+      className="modal-overlay"
+      data-lenis-prevent="true"
+      onClick={onClose}
+      onWheel={(e) => e.stopPropagation()}
+    >
+      <div
+        className="modal-container"
+        data-lenis-prevent="true"
+        onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <div>
             <h3 className="modal-title">Select Reader Persona</h3>
@@ -46,7 +77,11 @@ export function PersonaModal({
           </button>
         </div>
 
-        <div className="persona-grid">
+        <div
+          className="persona-grid"
+          data-lenis-prevent="true"
+          onWheel={(e) => e.stopPropagation()}
+        >
           {personas.map((persona) => {
             const isSelected = currentPersonaKey === persona.key;
 
