@@ -1,0 +1,105 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String           @id @default(uuid())
+  sessionToken  String           @unique
+  name          String
+  role          String           @default("reader") // reader | persona
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  preferences   UserPreference?
+  editions      Edition[]
+  feedback      FeedbackSignal[]
+  savedArticles SavedArticle[]
+}
+
+model UserPreference {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topics          String   // JSON array of strings: e.g. ["Technology & AI", "Global Economy"]
+  topicWeights    String   // JSON map of weights: e.g. {"Technology & AI": 1.2}
+  readingDepth    String   @default("balanced") // quick_scan | balanced | deep_dive
+  serendipityMode Boolean  @default(true)
+  deliveryHour    Int      @default(7)
+  updatedAt       DateTime @updatedAt
+}
+
+model Article {
+  id             String           @id @default(uuid())
+  url            String           @unique
+  urlHash        String           @unique
+  title          String
+  sourceName     String
+  author         String?
+  publishedAt    DateTime
+  rawContent     String?
+  leadImageUrl   String?
+  category       String
+  clusterId      String?
+  createdAt      DateTime         @default(now())
+
+  editionArticles EditionArticle[]
+}
+
+model Edition {
+  id            String           @id @default(uuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  editionDate   DateTime         @default(now())
+  editionNumber Int
+  mastheadTitle String
+  pdfPath       String?
+  totalTokens   Int              @default(0)
+  estimatedCost Float            @default(0.0)
+  generationMs  Int              @default(0)
+  createdAt     DateTime         @default(now())
+
+  articles      EditionArticle[]
+
+  @@unique([userId, editionDate])
+}
+
+model EditionArticle {
+  id             String   @id @default(uuid())
+  editionId      String
+  edition        Edition  @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  articleId      String
+  article        Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  sectionName    String   // Lead | Main | Horizon
+  positionOrder  Int
+  headline       String
+  summaryBullets String   // JSON array of verified fact strings
+  sourceQuote    String?  // Verbatim quote from source text
+  narrativeText  String
+  whyItMatters   String
+  sourceCitation String   // Original source name and url
+  isSerendipity  Boolean  @default(false)
+}
+
+model FeedbackSignal {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  articleId   String
+  eventType   String   // "skip" | "read_deep" | "thumbs_up" | "thumbs_down" | "save"
+  dwellTimeMs Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model SavedArticle {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  articleId String
+  notes     String?
+  createdAt DateTime @default(now())
+}

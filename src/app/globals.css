@@ -1,0 +1,35 @@
+/* Editorial Broadsheet Newspaper Design System */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-paper: #fbf9f5;
+  --bg-card: #ffffff;
+  --text-primary: #121212;
+  --text-secondary: #4a4a4a;
+  --text-muted: #71717a;
+  --border-ink: #262626;
+  --border-light: #e4e2dd;
+  --accent-ink: #8b0000;
+  --font-masthead: 'Cinzel', Georgia, serif;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-paper);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
