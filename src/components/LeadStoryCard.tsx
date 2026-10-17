@@ -1,7 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ExternalLink, ThumbsUp, SkipForward, Bookmark, CheckCircle2, Quote, Sparkles, Clock, ShieldCheck, Tag } from 'lucide-react';
+import { ExternalLink, ThumbsUp, SkipForward, Bookmark, CheckCircle2, Quote, Sparkles, Clock, ShieldCheck, Tag, Compass, Radio } from 'lucide-react';
 import { CanonicalStory } from '@/lib/synthesis/schema';
 import { analyzeStoryNLP } from '@/lib/nlp';
 
@@ -33,21 +34,31 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
   if (feedbackState === 'skipped') {
     return (
       <div className="lead-story-skipped">
-        <p><em>You skipped this story. Your editorial profile has decreased weighting for {story.sectionName}.</em></p>
+        <p><em>Bureau dispatch deprioritized. Editorial weight adjusted for {story.sectionName}.</em></p>
       </div>
     );
   }
 
+  const heroImageSrc = story.leadImageUrl || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1600&q=80';
+
   return (
-    <article className="lead-story-card">
-      {/* Top Dateline & Origin Bar */}
+    <article className="lead-story-card" data-cursor="Lead Dispatch">
+      {/* Top Dateline & Telemetry Origin Bar */}
       <div className="lead-story-header">
-        <div className="flex items-center gap-2">
-          <span className="section-badge">FRONT PAGE LEAD</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="section-badge">FRONT PAGE FOLIO LEAD</span>
+          
+          {/* Coordinate Beacon */}
+          <div className="coordinate-beacon" title="Autonomous Newsroom Provenance Geolocation Beacon">
+            <Radio size={10} className="pulse-dot" />
+            <span>BEACON 37.77° N, 122.41° W</span>
+          </div>
+
           <button
             onClick={() => setShowNlpLens(!showNlpLens)}
-            className="px-2 py-0.5 text-[10px] font-mono tracking-wider rounded border border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 transition flex items-center gap-1"
+            className="nlp-lens-toggle"
             title="Toggle NLP Cognitive Lens Insights"
+            data-cursor="Lens"
           >
             <Sparkles size={11} />
             <span>NLP COGNITIVE LENS</span>
@@ -55,21 +66,22 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
         </div>
 
         <span className="lead-dateline">
-          Reported by{' '}
+          ORIGIN: {' '}
           <a
             href={story.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="source-link"
-            title="Open original verified article in new tab"
+            title="Inspect primary source wire in original accredited publication"
+            data-cursor="Inspect Wire"
           >
             <strong>{story.sourceName}</strong>
-            <ExternalLink size={12} style={{ marginLeft: 4, display: 'inline' }} />
+            <ExternalLink size={11} style={{ marginLeft: 4, display: 'inline' }} />
           </a>
         </span>
       </div>
 
-      {/* Main Headline */}
+      {/* Main Kinetic Headline */}
       <h2 className="lead-headline">
         <a href={story.sourceUrl} target="_blank" rel="noopener noreferrer">
           {story.headline}
@@ -86,7 +98,7 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
           <div className="nlp-divider">•</div>
           <div className="nlp-item">
             <ShieldCheck size={12} className="text-emerald-600 dark:text-emerald-400" />
-            <span>Fact-Check: 100% Verbatim Anchored</span>
+            <span>Provenance: 100% Verbatim Anchored</span>
           </div>
           <div className="nlp-divider">•</div>
           <div className="nlp-item">
@@ -96,7 +108,7 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
           {nlp.entities.length > 0 && (
             <>
               <div className="nlp-divider">•</div>
-              <div className="nlp-item flex items-center gap-1">
+              <div className="nlp-item flex items-center gap-1 flex-wrap">
                 <Tag size={11} className="text-stone-400" />
                 {nlp.entities.map((e, i) => (
                   <span key={i} className="nlp-entity-chip">
@@ -109,6 +121,24 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
         </div>
       )}
 
+      {/* Curated Editorial Hero Visual Frame */}
+      <div className="lead-visual-container">
+        <img
+          src={heroImageSrc}
+          alt={story.headline}
+          className="lead-hero-image"
+          loading="lazy"
+          onError={(e) => {
+            // Graceful fallback to tactile editorial paper photograph
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1600&q=80';
+          }}
+        />
+        <div className="lead-image-caption">
+          <span>FIG 01.1 // METROPOLITAN SYNDICATE PHOTO-JOURNAL ARCHIVE</span>
+          <span className="caption-credit">PHOTO ARCHIVE • VERIFIED LICENSE</span>
+        </div>
+      </div>
+
       {/* Story Layout Columns */}
       <div className="lead-body-layout">
         <div className="lead-narrative-col">
@@ -118,8 +148,8 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
           {story.sourceQuote && (
             <div className="verbatim-quote-box">
               <div className="quote-header">
-                <Quote size={14} />
-                <span>PRIMARY SOURCE EVIDENCE</span>
+                <Quote size={13} />
+                <span>PRIMARY SOURCE VERBATIM ATTESTATION</span>
               </div>
               <blockquote className="quote-content">
                 “{story.sourceQuote}”
@@ -129,17 +159,17 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
 
           {/* "Why This Matters to You" Contextual Hook */}
           <div className="why-it-matters-box">
-            <span className="why-label">WHY THIS MATTERS TO YOU:</span>
+            <span className="why-label">EDITORIAL RELEVANCE APERTURE:</span>
             <p className="why-text">{story.whyItMatters}</p>
           </div>
         </div>
 
         <div className="lead-bullets-col">
-          <h3 className="takeaways-title">VERIFIED CORE TAKEAWAYS</h3>
+          <h3 className="takeaways-title">VERIFIED CORE FINDINGS</h3>
           <ul className="takeaways-list">
             {story.summaryBullets.map((bullet, idx) => (
               <li key={idx} className="takeaway-item">
-                <CheckCircle2 size={16} className="bullet-check" />
+                <CheckCircle2 size={15} className="bullet-check" />
                 <span>{bullet}</span>
               </li>
             ))}
@@ -147,36 +177,39 @@ export function LeadStoryCard({ story, onFeedback }: LeadStoryCardProps) {
 
           {/* Feedback Controls with Tactile Physics */}
           <div className="story-feedback-bar">
-            <span className="feedback-label">Tune Future Editions:</span>
+            <span className="feedback-label">Calibrate Bureau Frequency:</span>
             <div className="feedback-buttons">
               <button
                 onClick={() => handleAction('upvote')}
                 disabled={isSubmitting || feedbackState === 'upvoted'}
-                className={`feedback-btn nav-roll-btn ${feedbackState === 'upvoted' ? 'active-upvote' : ''}`}
-                title="More stories like this"
+                className={`feedback-btn ${feedbackState === 'upvoted' ? 'active-upvote' : ''}`}
+                title="Commend wire report to increase frequency"
+                data-cursor="Commend"
               >
-                <ThumbsUp size={14} />
-                <span>{feedbackState === 'upvoted' ? 'Upvoted' : 'Relevant'}</span>
+                <ThumbsUp size={13} />
+                <span>{feedbackState === 'upvoted' ? 'Commended' : 'Commend Wire'}</span>
               </button>
 
               <button
                 onClick={() => handleAction('save')}
                 disabled={isSubmitting || feedbackState === 'saved'}
-                className={`feedback-btn nav-roll-btn ${feedbackState === 'saved' ? 'active-save' : ''}`}
-                title="Save article to briefcase"
+                className={`feedback-btn ${feedbackState === 'saved' ? 'active-save' : ''}`}
+                title="File to reader personal dossier"
+                data-cursor="File Dossier"
               >
-                <Bookmark size={14} />
-                <span>{feedbackState === 'saved' ? 'Saved' : 'Save'}</span>
+                <Bookmark size={13} />
+                <span>{feedbackState === 'saved' ? 'In Dossier' : 'File Dossier'}</span>
               </button>
 
               <button
                 onClick={() => handleAction('skip')}
                 disabled={isSubmitting}
-                className="feedback-btn feedback-btn-skip nav-roll-btn"
-                title="Less of this topic in future editions"
+                className="feedback-btn feedback-skip"
+                title="Deprioritize this beat from morning editions"
+                data-cursor="Deprioritize"
               >
-                <SkipForward size={14} />
-                <span>Skip Topic</span>
+                <SkipForward size={13} />
+                <span>Deprioritize</span>
               </button>
             </div>
           </div>

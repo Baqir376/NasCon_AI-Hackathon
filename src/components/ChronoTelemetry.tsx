@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, BookOpen, Zap } from 'lucide-react';
+import { Sun, Moon, BookOpen, Zap, Radio, Terminal } from 'lucide-react';
 
 interface ChronoTelemetryProps {
   engineName?: string;
@@ -33,7 +33,7 @@ export function ChronoTelemetry({ engineName = 'Groq 120B LPU', generationMs = 2
   }, []);
 
   return (
-    <div className="telemetry-rail">
+    <div className="telemetry-rail" data-cursor="Telemetry">
       {/* Left: CRT Telemetry Indicator */}
       <div className="telemetry-left">
         <div className="telemetry-status">
@@ -42,7 +42,7 @@ export function ChronoTelemetry({ engineName = 'Groq 120B LPU', generationMs = 2
         </div>
         <div className="telemetry-specs">
           <span className="telemetry-sep">|</span>
-          <span className="telemetry-engine">[ ENGINE: {engineName.toUpperCase()} ]</span>
+          <span className="telemetry-engine" title="Synthesis Pipeline Engine">[ ENGINE: {engineName.toUpperCase()} ]</span>
           <span className="telemetry-sep">|</span>
           <span>LATENCY: {generationMs}ms</span>
           <span className="telemetry-sep">|</span>
@@ -57,8 +57,9 @@ export function ChronoTelemetry({ engineName = 'Groq 120B LPU', generationMs = 2
           onClick={() => setBionicMode(!bionicMode)}
           className={`telemetry-toggle-btn ${bionicMode ? 'active-bionic' : ''}`}
           title="Toggle Bionic Reading Focus Mode"
+          data-cursor="Bionic Toggle"
         >
-          <Zap size={12} />
+          <Zap size={11} />
           <span>Bionic Speed: <strong>{bionicMode ? 'ON' : 'OFF'}</strong></span>
         </button>
 
@@ -68,8 +69,9 @@ export function ChronoTelemetry({ engineName = 'Groq 120B LPU', generationMs = 2
             onClick={() => setTheme('dawn')}
             className={`theme-tab-btn ${theme === 'dawn' ? 'active-dawn' : ''}`}
             title="Dawn Light: Warm morning parchment"
+            data-cursor="Dawn"
           >
-            <Sun size={12} />
+            <Sun size={11} />
             <span>Dawn</span>
           </button>
 
@@ -77,8 +79,9 @@ export function ChronoTelemetry({ engineName = 'Groq 120B LPU', generationMs = 2
             onClick={() => setTheme('broadsheet')}
             className={`theme-tab-btn ${theme === 'broadsheet' ? 'active-broadsheet' : ''}`}
             title="Broadsheet: High-contrast newsprint paper"
+            data-cursor="Broadsheet"
           >
-            <BookOpen size={12} />
+            <BookOpen size={11} />
             <span>Broadsheet</span>
           </button>
 
@@ -86,8 +89,9 @@ export function ChronoTelemetry({ engineName = 'Groq 120B LPU', generationMs = 2
             onClick={() => setTheme('midnight')}
             className={`theme-tab-btn ${theme === 'midnight' ? 'active-midnight' : ''}`}
             title="Midnight: Obsidian cyber-editorial dark mode"
+            data-cursor="Midnight"
           >
-            <Moon size={12} />
+            <Moon size={11} />
             <span>Midnight</span>
           </button>
         </div>

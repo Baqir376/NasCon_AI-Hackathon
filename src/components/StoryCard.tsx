@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ExternalLink, ThumbsUp, SkipForward, Bookmark, CheckCircle2, Clock, Tag } from 'lucide-react';
+import { ExternalLink, ThumbsUp, SkipForward, Bookmark, CheckCircle2, Clock, ShieldCheck, Quote } from 'lucide-react';
 import { CanonicalStory } from '@/lib/synthesis/schema';
 import { analyzeStoryNLP } from '@/lib/nlp';
 
@@ -32,28 +32,34 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
   if (feedbackState === 'skipped') {
     return (
       <div className="story-card story-card-skipped">
-        <p><em>Story skipped. Editorial model updated for {story.sectionName}.</em></p>
+        <p><em>Dispatch deprioritized. Editorial balance adjusted for {story.sectionName}.</em></p>
       </div>
     );
   }
 
   return (
-    <article className="story-card">
+    <article className="story-card" data-cursor="Inspect Story">
       {/* Top Meta & Origin */}
       <div className="story-meta">
         <span className="story-source">
-          <a href={story.sourceUrl} target="_blank" rel="noopener noreferrer">
+          <a
+            href={story.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Inspect primary source wire"
+            data-cursor="Primary Wire"
+          >
             {story.sourceName}
             <ExternalLink size={10} style={{ marginLeft: 3, display: 'inline' }} />
           </a>
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-stone-400 flex items-center gap-1">
+          <span className="story-telemetry-pill">
             <Clock size={10} />
             <span>{nlp.readingTimeMinutes}m</span>
           </span>
           <span className="story-date">
-            {new Date(story.publishedAt).toLocaleDateString()}
+            {new Date(story.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
           </span>
         </div>
       </div>
@@ -81,20 +87,21 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
       {/* Verbatim Quote Snippet */}
       {story.sourceQuote && (
         <p className="story-quote-snippet">
-          <span className="quote-tag">Source Quote:</span> “{story.sourceQuote}”
+          <Quote size={11} className="inline mr-1 text-amber-700/60 dark:text-amber-400/60" />
+          <span className="quote-tag">Primary Source Evidence:</span> “{story.sourceQuote}”
         </p>
       )}
 
       {/* Relevance Hook */}
       <div className="story-why-mini">
-        <strong>Relevance:</strong> {story.whyItMatters}
+        <span className="relevance-lead">Relevance Aperture:</span> {story.whyItMatters}
       </div>
 
       {/* Entity Chips */}
       {nlp.entities.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1 my-2">
+        <div className="story-entity-row">
           {nlp.entities.slice(0, 3).map((ent, i) => (
-            <span key={i} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-stone-200/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
+            <span key={i} className="story-entity-tag">
               #{ent}
             </span>
           ))}
@@ -107,30 +114,33 @@ export function StoryCard({ story, onFeedback }: StoryCardProps) {
           onClick={() => handleAction('upvote')}
           disabled={isSubmitting || feedbackState === 'upvoted'}
           className={`mini-action-btn ${feedbackState === 'upvoted' ? 'active' : ''}`}
-          title="More like this"
+          title="Commend this bureau dispatch"
+          data-cursor="Commend"
         >
-          <ThumbsUp size={12} />
-          <span>{feedbackState === 'upvoted' ? 'Liked' : 'Like'}</span>
+          <ThumbsUp size={11} />
+          <span>{feedbackState === 'upvoted' ? 'Commended' : 'Commend'}</span>
         </button>
 
         <button
           onClick={() => handleAction('save')}
           disabled={isSubmitting || feedbackState === 'saved'}
           className={`mini-action-btn ${feedbackState === 'saved' ? 'active' : ''}`}
-          title="Save story"
+          title="File to reader personal dossier"
+          data-cursor="File Dossier"
         >
-          <Bookmark size={12} />
-          <span>{feedbackState === 'saved' ? 'Saved' : 'Save'}</span>
+          <Bookmark size={11} />
+          <span>{feedbackState === 'saved' ? 'In Dossier' : 'Dossier'}</span>
         </button>
 
         <button
           onClick={() => handleAction('skip')}
           disabled={isSubmitting}
           className="mini-action-btn mini-action-skip"
-          title="Skip topic"
+          title="Deprioritize this subject beat"
+          data-cursor="Deprioritize"
         >
-          <SkipForward size={12} />
-          <span>Skip</span>
+          <SkipForward size={11} />
+          <span>Deprioritize</span>
         </button>
       </div>
     </article>

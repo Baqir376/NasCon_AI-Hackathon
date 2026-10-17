@@ -10,6 +10,8 @@ import { PreferencesModal } from '@/components/PreferencesModal';
 import { ArchiveModal } from '@/components/ArchiveModal';
 import { ChronoTelemetry } from '@/components/ChronoTelemetry';
 import { AudioConcierge } from '@/components/AudioConcierge';
+import { SmoothScroller } from '@/components/SmoothScroller';
+import { MagneticCursor } from '@/components/MagneticCursor';
 import { CanonicalEdition } from '@/lib/synthesis/schema';
 import { Sparkles, Newspaper, AlertCircle } from 'lucide-react';
 
@@ -221,6 +223,10 @@ export default function NewspaperPage() {
 
   return (
     <>
+      {/* Luxury Kinetic Motion Primitives */}
+      <SmoothScroller />
+      <MagneticCursor />
+
       {/* Top Chrono-Atmosphere & Live CRT Telemetry Rail */}
       <ChronoTelemetry
         engineName={edition?.providerUsed || 'Groq 120B'}
